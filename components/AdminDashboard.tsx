@@ -12,6 +12,7 @@ type Resource = {
 };
 type EditState = { title: string; categorySlug: string; description: string };
 type CategoryDraft = { name: string; slug: string };
+type CategoryEditState = Record<number, CategoryDraft>;
 
 interface Props {
   initialCategories: Category[];
@@ -30,19 +31,32 @@ function createInitialEdits(resources: Resource[]): Record<number, EditState> {
   return initial;
 }
 
+function createInitialCategoryEdits(categories: Category[]): CategoryEditState {
+  const initial: CategoryEditState = {};
+  for (const category of categories) {
+    initial[category.id] = {
+      name: category.name,
+      slug: category.slug,
+    };
+  }
+  return initial;
+}
+
 export default function AdminDashboard({ initialCategories, initialResources }: Props) {
   const [resources, setResources] = useState<Resource[]>(initialResources);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [edits, setEdits] = useState<Record<number, EditState>>(() => createInitialEdits(initialResources));
+  const [categoryEdits, setCategoryEdits] = useState<CategoryEditState>(() => createInitialCategoryEdits(initialCategories));
   const [newCategory, setNewCategory] = useState<CategoryDraft>({ name: "", slug: "" });
   const [saving, setSaving] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [creatingCategory, setCreatingCategory] = useState(false);
+  const [savingCategory, setSavingCategory] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
-  const [categorySaved, setCategorySaved] = useState<string | null>(null);
+  const [categoryNotice, setCategoryNotice] = useState<string | null>(null);
 
   async function logout() {
     setLoggingOut(true);
@@ -140,9 +154,78 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
 
     const created = data?.data as Category;
     setCategories((prev) => [...prev, created].sort((left, right) => left.name.localeCompare(right.name)));
+    setCategoryEdits((prev) => ({
+      ...prev,
+      [created.id]: { name: created.name, slug: created.slug },
+    }));
     setNewCategory({ name: "", slug: "" });
-    setCategorySaved(created.name);
-    setTimeout(() => setCategorySaved(null), 2000);
+    setCategoryNotice(`Saved category: ${created.name}`);
+    setTimeout(() => setCategoryNotice(null), 2000);
+  }
+
+  function setCategoryField(id: number, field: keyof CategoryDraft, value: string) {
+    setCategoryEdits((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+  }
+
+  async function saveCategory(id: number) {
+    const draft = categoryEdits[id];
+    if (!draft?.name.trim() || !draft?.slug.trim()) {
+      setCategoryError("Category name and slug are required.");
+      return;
+    }
+
+    setSavingCategory(id);
+    setCategoryError(null);
+
+    const res = await fetch(`/api/categories/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: draft.name.trim(),
+        slug: draft.slug.trim().toLowerCase(),
+      }),
+    });
+    const data = await res.json().catch(() => null);
+    setSavingCategory(null);
+
+    if (res.status === 401) {
+      window.location.href = "/admin/login";
+      return;
+    }
+
+    if (!res.ok) {
+      setCategoryError(data?.error ?? `Category #${id} update failed.`);
+      return;
+    }
+
+    const updated = data?.data as Category;
+    setCategories((prev) =>
+      prev
+        .map((category) => (category.id === updated.id ? updated : category))
+        .sort((left, right) => left.name.localeCompare(right.name)),
+    );
+    setCategoryEdits((prev) => ({
+      ...prev,
+      [updated.id]: { name: updated.name, slug: updated.slug },
+    }));
+    setResources((prev) =>
+      prev.map((resource) =>
+        resource.category.id === updated.id
+          ? { ...resource, category: { id: updated.id, name: updated.name, slug: updated.slug } }
+          : resource,
+      ),
+    );
+    setEdits((prev) => {
+      const next = { ...prev };
+      for (const resource of resources) {
+        if (resource.category.id === updated.id && next[resource.id]) {
+          next[resource.id] = { ...next[resource.id], categorySlug: updated.slug };
+        }
+      }
+      return next;
+    });
+    setCategoryNotice(`Saved category: ${updated.name}`);
+    setTimeout(() => setCategoryNotice(null), 2000);
   }
 
   return (
@@ -204,7 +287,69 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
           </button>
         </div>
         {categoryError && <p style={{ color: "#c62828", marginBottom: 0 }}>{categoryError}</p>}
-        {categorySaved && <p style={{ color: "#2e7d32", marginBottom: 0 }}>Created category: {categorySaved}</p>}
+        {categoryNotice && <p style={{ color: "#2e7d32", marginBottom: 0 }}>{categoryNotice}</p>}
+      </section>
+      <section
+        style={{
+          marginBottom: "1.5rem",
+          padding: "1rem",
+          border: "1px solid #ddd",
+          borderRadius: 8,
+          background: "#fff",
+        }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: 14 }}>Edit categories</h2>
+        <div style={{ display: "grid", gap: 8 }}>
+          {categories.map((category) => {
+            const draft = categoryEdits[category.id];
+            if (!draft) return null;
+
+            const isSavingCategory = savingCategory === category.id;
+            return (
+              <div
+                key={category.id}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr auto",
+                  gap: 10,
+                  alignItems: "end",
+                  padding: "0.6rem 0",
+                  borderTop: "1px solid #eee",
+                }}
+              >
+                <label style={{ display: "grid", gap: 6 }}>
+                  <span>Name</span>
+                  <input
+                    value={draft.name}
+                    onChange={(event) => setCategoryField(category.id, "name", event.target.value)}
+                    style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+                  />
+                </label>
+                <label style={{ display: "grid", gap: 6 }}>
+                  <span>Slug</span>
+                  <input
+                    value={draft.slug}
+                    onChange={(event) => setCategoryField(category.id, "slug", event.target.value)}
+                    style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => saveCategory(category.id)}
+                  disabled={isSavingCategory}
+                  style={{
+                    padding: "0.6rem 1rem",
+                    cursor: isSavingCategory ? "wait" : "pointer",
+                    height: "fit-content",
+                  }}
+                >
+                  {isSavingCategory ? "Saving..." : "Save"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        {categoryNotice && <p style={{ color: "#2e7d32", marginBottom: 0 }}>{categoryNotice}</p>}
       </section>
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
