@@ -9,10 +9,9 @@ No immediate user input is required to continue implementation.
 
 The next product work can proceed autonomously:
 
-- replace hardcoded public styling with semantic theme tokens
-- add the v1 theme switcher overlay
-- add category create/edit UI behind the new admin session flow
-- implement no-provider ingestion fallback to `other`
+- preserve optional enrichment behavior while the bot transition continues
+- rewrite the Telegram bot onto the Node.js/TypeScript product path
+- tighten delivery and deployment packaging docs
 
 ## Inputs Needed Before V1 Can Be Truthfully Declared Final
 
@@ -38,7 +37,7 @@ Needed for full local or live validation:
 - `BOARD_API_SECRET`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_OWNER_ID`
-- one supported AI provider key if live categorization must be verified
+- one supported AI provider key if live categorization accuracy must be verified beyond the `other` fallback path
 
 Optional but useful:
 
@@ -71,7 +70,7 @@ The following can be decided by implementation without blocking current progress
 - exact visual design of the public board
 - detailed admin page layout
 - session implementation details
-- whether the first auth slice is cookie-based via built-in Next.js primitives or a minimal custom server-side session helper
+- whether ingestion runs Anthropic, OpenAI, or no provider by default in `auto` mode
 
 ## Current Repo Facts Relevant to This Audit
 
@@ -79,9 +78,10 @@ The following can be decided by implementation without blocking current progress
 - `/admin` now redirects unauthenticated users to the login page
 - board writes are protected by `x-api-key` via `BOARD_API_SECRET`
 - admin resource edit/delete routes now also accept an authenticated admin session
+- admin category create/edit routes now also accept an authenticated admin session
 - local board env now documents `DATABASE_URL`, `BOARD_API_SECRET`, and `ADMIN_PASSWORD`
-- agent env currently documents `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_ID`, `ANTHROPIC_API_KEY`, `SUPADATA_API_KEY`, `BOARD_API_URL`, `BOARD_API_SECRET`, and `CLAUDE_MODEL`
-- the current bot implementation still hard-requires `ANTHROPIC_API_KEY`; no-provider ingestion is planned work, not current behavior
+- agent env now documents `AI_PROVIDER`, `AI_MODEL`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SUPADATA_API_KEY`, `BOARD_API_URL`, `BOARD_API_SECRET`, and legacy `CLAUDE_MODEL`
+- the current bot implementation can ingest with no AI provider configured and will assign `other` in that case
 - `docs/RUNBOOK.md` now reflects the self-hosted product direction and distinguishes current auth from target v1 auth
 - CI workflows already exist for web lint/build and Python agent syntax checks
 

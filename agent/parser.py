@@ -1,13 +1,18 @@
-"""OG tag scraper + Claude category picker."""
+"""OG tag scraper + provider-agnostic category picker."""
 import json
+import logging
 import os
 import re
+from typing import Awaitable, Callable
+
 import httpx
 import anthropic
 from bs4 import BeautifulSoup
 
-_claude = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
+logger = logging.getLogger(__name__)
+
+DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
+DEFAULT_OPENAI_MODEL = "gpt-4.1-mini"
 
 _SYSTEM = """You are a resource categorisation assistant.
 Given a URL, title, and description, pick the single best matching category slug from the list provided.
@@ -106,27 +111,135 @@ def _meta_desc(soup: BeautifulSoup) -> str | None:
     return tag.get("content", "").strip() if tag else None
 
 
+def _configured_provider() -> str:
+    return os.environ.get("AI_PROVIDER", "auto").strip().lower()
+
+
+def _configured_model(provider: str) -> str:
+    generic_model = os.environ.get("AI_MODEL", "").strip()
+    if generic_model:
+        return generic_model
+
+    if provider == "anthropic":
+        return os.environ.get("CLAUDE_MODEL", "").strip() or DEFAULT_ANTHROPIC_MODEL
+
+    if provider == "openai":
+        return DEFAULT_OPENAI_MODEL
+
+    return ""
+
+
+def _resolve_provider() -> str:
+    configured_provider = _configured_provider()
+    if configured_provider in {"none", "anthropic", "openai"}:
+        return configured_provider
+
+    if configured_provider not in {"", "auto"}:
+        logger.warning("Unknown AI_PROVIDER=%r. Falling back to auto detection.", configured_provider)
+
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return "anthropic"
+
+    if os.environ.get("OPENAI_API_KEY"):
+        return "openai"
+
+    return "none"
+
+
+def _extract_slug(raw: str, slugs: list[str]) -> str:
+    match = re.search(r'\{.*\}', raw, re.DOTALL)
+    if not match:
+        return "other"
+
+    try:
+        data = json.loads(match.group())
+    except Exception:
+        return "other"
+
+    slug = data.get("slug", "other")
+    return slug if slug in slugs else "other"
+
+
+def _anthropic_client() -> anthropic.Anthropic | None:
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return None
+
+    return anthropic.Anthropic(api_key=api_key)
+
+
+async def _pick_category_with_anthropic(user_msg: str, slugs: list[str]) -> str:
+    client = _anthropic_client()
+    if not client:
+        return "other"
+
+    try:
+        resp = client.messages.create(
+            model=_configured_model("anthropic"),
+            max_tokens=64,
+            system=_SYSTEM,
+            messages=[{"role": "user", "content": user_msg}],
+        )
+        return _extract_slug(resp.content[0].text.strip(), slugs)
+    except Exception:
+        return "other"
+
+
+async def _pick_category_with_openai(user_msg: str, slugs: list[str]) -> str:
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return "other"
+
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": _configured_model("openai"),
+                    "temperature": 0,
+                    "messages": [
+                        {"role": "system", "content": _SYSTEM},
+                        {"role": "user", "content": user_msg},
+                    ],
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            raw = data["choices"][0]["message"]["content"].strip()
+            return _extract_slug(raw, slugs)
+    except Exception:
+        return "other"
+
+
+CategoryPicker = Callable[[str, list[str]], Awaitable[str]]
+
+
+PROVIDER_PICKERS: dict[str, CategoryPicker] = {
+    "anthropic": _pick_category_with_anthropic,
+    "openai": _pick_category_with_openai,
+}
+
+
 async def pick_category(url: str, title: str, description: str | None, categories: list[dict]) -> str:
-    """Ask Claude to pick the best category slug."""
+    """Pick the best category slug using the configured provider."""
     slugs = [c["slug"] for c in categories]
     user_msg = (
         f"URL: {url}\nTitle: {title}\nDescription: {description or 'N/A'}\n\n"
         f"Available category slugs: {json.dumps(slugs)}"
     )
-    try:
-        resp = _claude.messages.create(
-            model=CLAUDE_MODEL,
-            max_tokens=64,
-            system=_SYSTEM,
-            messages=[{"role": "user", "content": user_msg}],
-        )
-        raw = resp.content[0].text.strip()
-        # extract JSON even if Claude adds surrounding text
-        match = re.search(r'\{.*\}', raw, re.DOTALL)
-        if match:
-            data = json.loads(match.group())
-            slug = data.get("slug", "other")
-            return slug if slug in slugs else "other"
-    except Exception:
-        pass
+
+    provider = _resolve_provider()
+    if provider == "none":
+        logger.info("No AI provider configured. Falling back to 'other'.")
+        return "other"
+
+    picker = PROVIDER_PICKERS.get(provider)
+    if picker:
+        return await picker(user_msg, slugs)
+
+    logger.warning("No category picker is registered for provider=%r. Falling back to 'other'.", provider)
     return "other"

@@ -90,14 +90,17 @@ Current required agent values:
 
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_OWNER_ID`
-- `ANTHROPIC_API_KEY`
 - `BOARD_API_SECRET`
 - `BOARD_API_URL=http://localhost:3000`
 
 Optional:
 
+- `AI_PROVIDER` (`auto`, `anthropic`, `openai`, or `none`)
+- `AI_MODEL`
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
 - `SUPADATA_API_KEY`
-- `CLAUDE_MODEL`
+- `CLAUDE_MODEL` (legacy Anthropic override; `AI_MODEL` takes precedence)
 
 ## Daily Development
 
@@ -220,9 +223,10 @@ Supported `GET /api/resources` filters:
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
 | POST | `/api/resources` | `x-api-key` | Create or upsert resource |
-| PATCH | `/api/resources/:id` | `x-api-key` | Update title, description, or category |
-| DELETE | `/api/resources/:id` | `x-api-key` | Delete resource |
-| POST | `/api/categories` | `x-api-key` | Create category |
+| PATCH | `/api/resources/:id` | `x-api-key` or admin session | Update title, description, or category |
+| DELETE | `/api/resources/:id` | `x-api-key` or admin session | Delete resource |
+| POST | `/api/categories` | `x-api-key` or admin session | Create category |
+| PATCH | `/api/categories/:id` | `x-api-key` or admin session | Update category |
 
 Example:
 
@@ -248,11 +252,7 @@ Current behavior:
 - successful login sets an admin session cookie
 - the admin page requires that session cookie
 - resource save and delete actions work without exposing `BOARD_API_SECRET` in the browser
-
-Remaining v1 admin work:
-
-- category create UI
-- category edit UI
+- category create and edit now work without exposing `BOARD_API_SECRET` in the browser
 
 ## Secrets
 
@@ -280,7 +280,6 @@ Current required values:
 |---|---|
 | `TELEGRAM_BOT_TOKEN` | Bot token from BotFather |
 | `TELEGRAM_OWNER_ID` | Telegram user ID allowed to operate the bot |
-| `ANTHROPIC_API_KEY` | Required by the current implementation |
 | `BOARD_API_SECRET` | Must match the board secret |
 | `BOARD_API_URL` | Local dev usually `http://localhost:3000` |
 
@@ -288,8 +287,12 @@ Current optional values:
 
 | Key | Notes |
 |---|---|
+| `AI_PROVIDER` | `auto`, `anthropic`, `openai`, or `none`; `auto` prefers Anthropic, then OpenAI, then no-provider fallback |
+| `AI_MODEL` | Generic model override for the selected provider |
+| `ANTHROPIC_API_KEY` | Enables Anthropic-based categorization when present |
+| `OPENAI_API_KEY` | Enables OpenAI-based categorization when present |
 | `SUPADATA_API_KEY` | Improves social/video metadata |
-| `CLAUDE_MODEL` | Overrides the default Anthropic model |
+| `CLAUDE_MODEL` | Legacy Anthropic-specific model override; used only when `AI_MODEL` is unset |
 
 ## Production Deployment Notes
 

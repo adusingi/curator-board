@@ -1,5 +1,5 @@
 # ARCHITECTURE — Curator Board
-*Last updated: 2026-06-03*
+*Last updated: 2026-06-04*
 
 ---
 
@@ -46,7 +46,7 @@ curator-board/
 ├── agent/                      # Python 3.11 Telegram bot (separate runtime)
 │   ├── main.py                 # Entry point — waits for board, starts polling
 │   ├── bot.py                  # Telegram handler registration + command logic
-│   ├── parser.py               # OG scraper + Claude category picker
+│   ├── parser.py               # OG scraper + provider-agnostic category picker
 │   ├── api_client.py           # HTTP client for board REST API
 │   ├── pyproject.toml          # Python dependencies (uv)
 │   ├── uv.lock                 # Locked dependency tree
@@ -96,7 +96,8 @@ graph TD
     TelegramUser["Owner (Telegram)"]
     TelegramAPI["Telegram API"]
     Agent["agent container\nPython bot"]
-    Anthropic["Anthropic API\nClaude (haiku)"]
+    Anthropic["Anthropic API\nClaude (optional)"]
+    OpenAI["OpenAI API\nChat Completions (optional)"]
     Supadata["Supadata API\n(optional video metadata)"]
     YTOembed["YouTube oEmbed API\n(no key required)"]
     Board["board container\nNext.js 16"]
@@ -108,6 +109,7 @@ graph TD
     Agent -->|optional: richer metadata| Supadata
     Agent -->|YouTube fallback| YTOembed
     Agent -->|pick_category| Anthropic
+    Agent -->|pick_category| OpenAI
     Agent -->|POST /api/resources\nx-api-key| Board
     Board -->|Drizzle ORM| DB
     User -->|GET /| Board
@@ -130,6 +132,7 @@ graph TD
 | `PATCH /api/resources/:id` | `x-api-key` or admin session | Update title, description, or category |
 | `DELETE /api/resources/:id` | `x-api-key` or admin session | Remove a resource |
 | `POST /api/categories` | `x-api-key` or admin session | Add a new category |
+| `PATCH /api/categories/:id` | `x-api-key` or admin session | Update a category |
 | `/admin/login` | none | Admin login screen |
 | `/admin` | admin session | Owner editor for titles and categories |
 
@@ -152,12 +155,12 @@ graph TD
 
 ### 3.2 Agent (Telegram bot)
 
-- **Purpose:** Accepts URLs from the owner via Telegram, enriches them with metadata, asks Claude to pick a category, then writes the resource to the board API.
+- **Purpose:** Accepts URLs from the owner via Telegram, enriches them with metadata, asks the configured AI provider to pick a category when available, then writes the resource to the board API.
 - **Language/frameworks:** Python 3.11, `python-telegram-bot` ≥21, `httpx`, `BeautifulSoup4`, `anthropic` SDK
 - **Entry point:** `agent/main.py` — waits for the board to respond (up to 30 attempts × 10 s), then starts long-polling Telegram.
 - **Key modules:**
   - `bot.py` — registers all Telegram command and message handlers
-  - `parser.py` — OG scraping pipeline + Claude category picker
+  - `parser.py` — OG scraping pipeline + provider-agnostic category picker
   - `api_client.py` — typed HTTP client for all board API calls
 - **Deployment:** Docker container (`agent/Dockerfile`), `python:3.11-slim`. Managed by `uv`.
 
@@ -211,7 +214,8 @@ graph TD
 | Service | Purpose | Integration |
 |---|---|---|
 | **Telegram Bot API** | Receives URL submissions from the owner; delivers bot replies | `python-telegram-bot` library, long-polling |
-| **Anthropic API (Claude)** | Picks the best category slug for each submitted resource | `anthropic` Python SDK; model configurable via `CLAUDE_MODEL` env var (default: `claude-haiku-4-5-20251001`) |
+| **Anthropic API (Claude)** | Optional category picker for submitted resources | `anthropic` Python SDK; selected automatically when `ANTHROPIC_API_KEY` exists, or explicitly via `AI_PROVIDER=anthropic` |
+| **OpenAI API** | Optional category picker for submitted resources | REST POST to `/v1/chat/completions`; selected automatically when `OPENAI_API_KEY` exists and Anthropic is absent, or explicitly via `AI_PROVIDER=openai` |
 | **Supadata API** | Enriches video/social URLs (YouTube, TikTok, Instagram, Twitter/X) with real titles and descriptions | REST GET `https://api.supadata.ai/v1/metadata`; optional — skipped if `SUPADATA_API_KEY` is unset |
 | **YouTube oEmbed** | Fallback title + channel name for YouTube URLs when Supadata is unavailable | Unauthenticated REST GET; no API key required |
 
@@ -275,8 +279,8 @@ graph TD
 ### Authentication model (ADR-0003)
 
 - **Public read:** All `GET` endpoints are unauthenticated. The curated list and categories are publicly accessible by design.
-- **Machine write auth:** `POST`, `PATCH`, and `DELETE` endpoints require `x-api-key: <BOARD_API_SECRET>` header. The secret is a 64-character random hex string generated at deploy time.
-- **Admin page auth (current):** `/admin` is a client-side React page. The owner enters `BOARD_API_SECRET` in the browser, which is stored in component state and passed to API calls. This pattern is identified as a known gap — see Phase 1 roadmap.
+- **Machine write auth:** The Telegram bot uses `x-api-key: <BOARD_API_SECRET>` for write access to board API endpoints.
+- **Admin page auth (current):** `/admin/login` accepts `ADMIN_PASSWORD`, sets a signed session cookie, and `/admin` plus admin-backed mutations trust that session rather than exposing `BOARD_API_SECRET` in the browser.
 - **Telegram access control:** The agent checks `TELEGRAM_OWNER_ID` before executing write operations. Only messages from the configured owner ID can add or delete resources.
 
 ### Authorization helper
@@ -290,7 +294,7 @@ graph TD
 
 ### Known security gaps (tracked in roadmap)
 
-- `BOARD_API_SECRET` is currently entered and held in browser memory on the `/admin` page. Phase 1 will replace this with an `ADMIN_PASSWORD` + session cookie flow, keeping `BOARD_API_SECRET` server-side only.
+- Machine auth and human admin auth remain separate by design: `BOARD_API_SECRET` for bot/server writes, `ADMIN_PASSWORD` + session cookie for the browser admin flow.
 
 ---
 

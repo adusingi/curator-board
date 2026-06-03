@@ -1,6 +1,6 @@
 # TASKS.md — Curator Board Self-Hosted Product
 *Active development tracker*
-*Last updated: 2026-06-03*
+*Last updated: 2026-06-04*
 *Current sprint: self-hosted productization*
 
 ---
@@ -48,13 +48,13 @@
 ## 🧠 Phase 2 — Ingestion Platform
 
 ### No-key fallback
-- [ ] **RES-PROD-8** Allow ingestion with no AI provider configured
-- [ ] **RES-PROD-9** Assign `other` when no provider is available
+- [x] **RES-PROD-8** Allow ingestion with no AI provider configured
+- [x] **RES-PROD-9** Assign `other` when no provider is available
 
 ### Provider abstraction
-- [ ] **RES-PROD-10** Introduce provider-agnostic categorization interface
-- [ ] **RES-PROD-11** Add config-driven provider selection
-- [ ] **RES-PROD-12** Preserve current successful categorization path during the transition
+- [x] **RES-PROD-10** Introduce provider-agnostic categorization interface
+- [x] **RES-PROD-11** Add config-driven provider selection
+- [x] **RES-PROD-12** Preserve current successful categorization path during the transition
 
 ### Optional enrichment
 - [ ] **RES-PROD-13** Keep default metadata extraction working without enrichment keys

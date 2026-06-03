@@ -120,14 +120,17 @@ Current required values in `agent/.env`:
 
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_OWNER_ID`
-- `ANTHROPIC_API_KEY`
 - `BOARD_API_SECRET`
 - `BOARD_API_URL=http://localhost:3000`
 
 Optional:
 
+- `AI_PROVIDER` (`auto`, `anthropic`, `openai`, or `none`)
+- `AI_MODEL`
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
 - `SUPADATA_API_KEY`
-- `CLAUDE_MODEL`
+- `CLAUDE_MODEL` (legacy Anthropic override; `AI_MODEL` takes precedence)
 
 ## Common Commands
 
@@ -165,8 +168,9 @@ uv run python main.py
 - `PATCH /api/resources/:id`
 - `DELETE /api/resources/:id`
 - `POST /api/categories`
+- `PATCH /api/categories/:id`
 
-Write requests currently require:
+Machine write requests currently require:
 
 ```text
 x-api-key: <BOARD_API_SECRET>
@@ -192,10 +196,6 @@ curl -X POST http://localhost:3000/api/resources \
 
 ## Current Gaps Before V1 Sign-Off
 
-- token-based public theming and theme switcher UI
-- category create/edit UI behind admin session auth
-- no-provider ingestion fallback to `other`
-- provider-agnostic AI categorization
 - TypeScript/Node.js bot rewrite
 - release packaging, licensing, and buyer-facing install materials
 
