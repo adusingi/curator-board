@@ -98,6 +98,6 @@ No AI provider key is configured. This is expected behavior — add `ANTHROPIC_A
 
 ## Need help?
 
-Contact: [SUPPORT EMAIL / SUPPORT CHANNEL]
+Contact: aimabled@gmail.com
 
 Please include your deployment path (Vercel / Docker / manual) and the relevant log output when reporting issues.

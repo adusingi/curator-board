@@ -31,19 +31,19 @@
 
 ## Delivery email template
 
-> **Subject:** Your [PRODUCT NAME] purchase — delivery
+> **Subject:** Your Curator Board purchase — delivery
 >
 > Hi [Buyer name],
 >
-> Thank you for your purchase. Attached is [PRODUCT NAME] [version tag].
+> Thank you for your purchase. Attached is Curator Board [version tag].
 >
 > To get started, open `docs/install-guide.md` inside the archive. It walks you through deploying the board and the Telegram bot step by step.
 >
-> If you run into any issues, reply to this email or reach us at [SUPPORT EMAIL / SUPPORT CHANNEL].
+> If you run into any issues, reply to this email or reach us at aimabled@gmail.com.
 >
 > [Seller name]
 
-Replace `[PRODUCT NAME]`, `[SUPPORT EMAIL / SUPPORT CHANNEL]`, and `[Seller name]` with the finalized values from RES-PROD-27 and RES-PROD-29 before sending.
+Replace `[Buyer name]`, `[version tag]`, and `[Seller name]` before sending.
 
 ---
 

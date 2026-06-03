@@ -21,7 +21,7 @@ A single ZIP archive (or private repo access) containing:
 
 Before sending a delivery, confirm the following are present and up to date:
 
-- [ ] `LICENSE` file at repo root (see RES-PROD-28)
+- [ ] `LICENSE` file at repo root — confirm `[Your Name]` has been replaced with the actual copyright holder name
 - [ ] `README.md` updated with final product name (see RES-PROD-27)
 - [ ] `docs/install-guide.md` — buyer-facing quick-start
 - [ ] `docs/deploy-vercel.md` — Vercel board deployment
