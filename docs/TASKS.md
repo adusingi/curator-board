@@ -40,7 +40,7 @@
 
 ### Admin capabilities
 - [x] **RES-PROD-5** Keep resource edit/delete working behind admin session auth
-- [ ] **RES-PROD-6** Add category create UI and persistence
+- [x] **RES-PROD-6** Add category create UI and persistence
 - [ ] **RES-PROD-7** Add category edit UI and persistence
 
 ---

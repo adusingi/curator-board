@@ -11,6 +11,7 @@ type Resource = {
   category: Category;
 };
 type EditState = { title: string; categorySlug: string; description: string };
+type CategoryDraft = { name: string; slug: string };
 
 interface Props {
   initialCategories: Category[];
@@ -31,13 +32,17 @@ function createInitialEdits(resources: Resource[]): Record<number, EditState> {
 
 export default function AdminDashboard({ initialCategories, initialResources }: Props) {
   const [resources, setResources] = useState<Resource[]>(initialResources);
-  const [categories] = useState<Category[]>(initialCategories);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [edits, setEdits] = useState<Record<number, EditState>>(() => createInitialEdits(initialResources));
+  const [newCategory, setNewCategory] = useState<CategoryDraft>({ name: "", slug: "" });
   const [saving, setSaving] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
+  const [categorySaved, setCategorySaved] = useState<string | null>(null);
 
   async function logout() {
     setLoggingOut(true);
@@ -99,6 +104,47 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
     setEdits((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
   }
 
+  function setCategoryDraft(field: keyof CategoryDraft, value: string) {
+    setNewCategory((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function createCategory() {
+    if (!newCategory.name.trim() || !newCategory.slug.trim()) {
+      setCategoryError("Name and slug are required.");
+      return;
+    }
+
+    setCreatingCategory(true);
+    setCategoryError(null);
+
+    const res = await fetch("/api/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newCategory.name.trim(),
+        slug: newCategory.slug.trim().toLowerCase(),
+      }),
+    });
+    const data = await res.json().catch(() => null);
+    setCreatingCategory(false);
+
+    if (res.status === 401) {
+      window.location.href = "/admin/login";
+      return;
+    }
+
+    if (!res.ok) {
+      setCategoryError(data?.error ?? "Category create failed.");
+      return;
+    }
+
+    const created = data?.data as Category;
+    setCategories((prev) => [...prev, created].sort((left, right) => left.name.localeCompare(right.name)));
+    setNewCategory({ name: "", slug: "" });
+    setCategorySaved(created.name);
+    setTimeout(() => setCategorySaved(null), 2000);
+  }
+
   return (
     <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: 13 }}>
       <div
@@ -121,6 +167,45 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
         </button>
       </div>
       {error && <p style={{ color: "red", marginBottom: "0.5rem" }}>{error}</p>}
+      <section
+        style={{
+          marginBottom: "1.5rem",
+          padding: "1rem",
+          border: "1px solid #ddd",
+          borderRadius: 8,
+          background: "#fafafa",
+        }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: 14 }}>Create category</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, alignItems: "end" }}>
+          <label style={{ display: "grid", gap: 6 }}>
+            <span>Name</span>
+            <input
+              value={newCategory.name}
+              onChange={(event) => setCategoryDraft("name", event.target.value)}
+              style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+            />
+          </label>
+          <label style={{ display: "grid", gap: 6 }}>
+            <span>Slug</span>
+            <input
+              value={newCategory.slug}
+              onChange={(event) => setCategoryDraft("slug", event.target.value)}
+              style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={createCategory}
+            disabled={creatingCategory}
+            style={{ padding: "0.6rem 1rem", cursor: creatingCategory ? "wait" : "pointer", height: "fit-content" }}
+          >
+            {creatingCategory ? "Creating..." : "Add"}
+          </button>
+        </div>
+        {categoryError && <p style={{ color: "#c62828", marginBottom: 0 }}>{categoryError}</p>}
+        {categorySaved && <p style={{ color: "#2e7d32", marginBottom: 0 }}>Created category: {categorySaved}</p>}
+      </section>
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
