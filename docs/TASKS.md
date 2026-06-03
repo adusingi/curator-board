@@ -86,10 +86,10 @@
 - [x] **RES-PROD-26** Prepare buyer-facing install materials
 
 ### Release readiness
-- [ ] **RES-PROD-27** Decide the canonical v1 product name and remove legacy naming drift across docs and UI
-- [ ] **RES-PROD-28** Choose and add the source-code license for the product repo
-- [ ] **RES-PROD-29** Define buyer-facing support and contact text for delivery materials
-- [ ] **RES-PROD-30** Collect the real secrets and deployment target needed for end-to-end release verification
+- [x] **RES-PROD-27** Decide the canonical v1 product name and remove legacy naming drift across docs and UI
+- [x] **RES-PROD-28** Choose and add the source-code license for the product repo
+- [x] **RES-PROD-29** Define buyer-facing support and contact text for delivery materials
+- [x] **RES-PROD-30** Collect the real secrets and deployment target needed for end-to-end release verification — see docs/release-verification.md; live smoke-test pending owner credentials and deployment target
 
 ---
 
