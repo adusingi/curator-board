@@ -28,7 +28,7 @@
 ## 🔐 Phase 1 — Admin Auth Productization
 
 ### Public board design
-- [ ] **RES-UX-1** Replace the current hardcoded public board styling with semantic theme tokens
+- [x] **RES-UX-1** Replace the current hardcoded public board styling with semantic theme tokens
 - [ ] **RES-UX-2** Add a keyboard-friendly theme switcher overlay with persistent browser selection
 - [ ] **RES-UX-3** Ship an initial curated set of dark and light themes for v1
 

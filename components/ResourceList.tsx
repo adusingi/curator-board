@@ -44,189 +44,62 @@ export default function ResourceList({ items, categories }: Props) {
   const filtered = active ? items.filter((r) => r.category.slug === active) : items;
 
   return (
-    <div style={{ display: "flex", gap: 0, minHeight: "60vh" }}>
-      {/* ── Sidebar ── */}
-      <aside
-        style={{
-          width: 180,
-          flexShrink: 0,
-          borderRight: "1px solid #ddd",
-          paddingRight: 20,
-          marginRight: 32,
-        }}
-      >
-        <p
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: 10,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            color: "#aaa",
-            marginBottom: 10,
-            marginTop: 2,
-          }}
-        >
-          Filter
-        </p>
-
-        <button
-          onClick={() => setActive(null)}
-          style={{
-            display: "block",
-            width: "100%",
-            textAlign: "left",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "5px 0",
-            fontFamily: "system-ui, sans-serif",
-            fontSize: 13,
-            fontWeight: active === null ? 700 : 400,
-            color: active === null ? "#000" : "#555",
-            borderLeft: active === null ? "2px solid #000" : "2px solid transparent",
-            paddingLeft: 8,
-          }}
-        >
-          All{" "}
-          <span style={{ color: "#aaa", fontSize: 11 }}>({items.length})</span>
-        </button>
-
-        {populated.map((c) => (
-          <button
-            key={c.slug}
-            onClick={() => setActive(c.slug === active ? null : c.slug)}
-            style={{
-              display: "block",
-              width: "100%",
-              textAlign: "left",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "5px 0",
-              fontFamily: "system-ui, sans-serif",
-              fontSize: 13,
-              fontWeight: active === c.slug ? 700 : 400,
-              color: active === c.slug ? "#000" : "#555",
-              borderLeft: active === c.slug ? "2px solid #000" : "2px solid transparent",
-              paddingLeft: 8,
-            }}
-          >
-            {c.name}{" "}
-            <span style={{ color: "#aaa", fontSize: 11 }}>({counts[c.slug]})</span>
+    <div className="board-layout">
+      <aside className="board-sidebar">
+        <p className="board-sidebar-label">Filters</p>
+        <div className="filter-list">
+          <button className="filter-button" data-active={active === null} onClick={() => setActive(null)}>
+            <span>All links</span>
+            <span className="filter-count">{items.length}</span>
           </button>
-        ))}
+
+          {populated.map((c) => (
+            <button
+              key={c.slug}
+              className="filter-button"
+              data-active={active === c.slug}
+              onClick={() => setActive(c.slug === active ? null : c.slug)}
+            >
+              <span>{c.name}</span>
+              <span className="filter-count">{counts[c.slug]}</span>
+            </button>
+          ))}
+        </div>
       </aside>
 
-      {/* ── Main list ── */}
-      <main style={{ flex: 1 }}>
+      <main className="board-main">
         {filtered.length === 0 ? (
-          <p style={{ fontFamily: "system-ui, sans-serif", color: "#aaa", fontSize: 13 }}>
-            No resources yet.
-          </p>
+          <p className="resource-empty">No links yet.</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div className="resource-list">
             {filtered.map((r) => (
-              <article key={r.id} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                {/* Arrow */}
-                <span
-                  style={{
-                    color: "#bbb",
-                    flexShrink: 0,
-                    fontFamily: "system-ui, sans-serif",
-                    fontSize: 12,
-                    paddingTop: 3,
-                    width: 16,
-                  }}
-                >
-                  →
-                </span>
+              <article key={r.id} className="resource-card">
+                <span className="resource-arrow">→</span>
 
-                <div style={{ flex: 1 }}>
-                  {/* Title row */}
-                  <div>
+                <div className="resource-content">
+                  <div className="resource-title-row">
                     <a
                       href={r.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        fontFamily: "Georgia, 'Times New Roman', serif",
-                        fontSize: 15,
-                        fontStyle: "italic",
-                        color: "#1a1a1a",
-                        textDecoration: "none",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                      onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+                      className="resource-title"
                     >
                       {r.title}
                     </a>
-                    {"  "}
-                    <span
-                      style={{
-                        fontFamily: "system-ui, sans-serif",
-                        fontSize: 11,
-                        color: "#aaa",
-                      }}
-                    >
-                      ({getDomain(r.url)})
-                    </span>
+                    <span className="resource-domain">{getDomain(r.url)}</span>
                   </div>
 
-                  {/* Description */}
                   {r.description && (
-                    <p
-                      style={{
-                        fontFamily: "Georgia, 'Times New Roman', serif",
-                        fontSize: 13,
-                        color: "#666",
-                        margin: "4px 0 0",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      {r.description.length > 360 ? r.description.slice(0, 357) + "..." : r.description}
+                    <p className="resource-description">
+                      {r.description.length > 360 ? `${r.description.slice(0, 357)}...` : r.description}
                     </p>
                   )}
 
-                  {/* Meta row: category · date · share */}
-                  <div
-                    style={{
-                      marginTop: 5,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      fontFamily: "system-ui, sans-serif",
-                      fontSize: 11,
-                      color: "#aaa",
-                    }}
-                  >
-                    <span
-                      style={{
-                        background: "#f0f0f0",
-                        color: "#666",
-                        padding: "1px 6px",
-                        borderRadius: 3,
-                        fontSize: 10,
-                        letterSpacing: 0.3,
-                      }}
-                    >
-                      {r.category.name}
-                    </span>
+                  <div className="resource-meta">
+                    <span className="resource-category">{r.category.name}</span>
                     <span>{formatDate(r.createdAt)}</span>
                     <span>·</span>
-                    <button
-                      onClick={() => share(r.url, r.title)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "#aaa",
-                        fontSize: 11,
-                        padding: 0,
-                        fontFamily: "system-ui, sans-serif",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = "#333")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "#aaa")}
-                    >
+                    <button onClick={() => share(r.url, r.title)} className="share-button">
                       share
                     </button>
                   </div>

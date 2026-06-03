@@ -33,44 +33,21 @@ export default async function HomePage() {
   const { resources: items, categories: cats } = await getData();
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 24px" }}>
-      {/* Header — C-style editorial */}
-      <header style={{ borderBottom: "3px solid #000", paddingBottom: 14, marginBottom: 28 }}>
-        <div
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: 10,
-            color: "#aaa",
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            marginBottom: 4,
-          }}
-        >
-          curator-board
-        </div>
-        <h1
-          style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: 26,
-            fontWeight: 700,
-            margin: 0,
-            letterSpacing: -0.5,
-          }}
-        >
-          Curated Links
-        </h1>
-        <p
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: 12,
-            color: "#888",
-            margin: "4px 0 0",
-          }}
-        >
-          Collected by adusingi — newest first
-        </p>
-      </header>
-      <ResourceList items={items} categories={cats} />
+    <div className="board-page">
+      <div className="board-shell">
+        <header className="board-header">
+          <div className="board-header-top">
+            <div className="board-eyebrow">Curator Board</div>
+            <div className="board-state">{items.length} saved links</div>
+          </div>
+          <h1 className="board-title">Collected for the terminal-minded.</h1>
+          <p className="board-summary">
+            A self-hosted board for links worth keeping: quiet enough to browse, structured enough to publish,
+            and opinionated enough to feel like a real product instead of a default template.
+          </p>
+        </header>
+        <ResourceList items={items} categories={cats} />
+      </div>
     </div>
   );
 }
