@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: resources
+      POSTGRES_PASSWORD: resources
+      POSTGRES_DB: resources
+    ports:
+      # Port 5436 avoids collision: network-mobayilo (5433), drive-mobayilo (5434), kazoku-calendar (5435)
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
