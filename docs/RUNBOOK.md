@@ -1,9 +1,9 @@
 # RUNBOOK — Curator Board
-*Last updated: 2026-06-03*
+*Last updated: 2026-06-04*
 
 Operational notes for the current Curator Board codebase.
 
-This document describes the repo as it works today while calling out important v1 transition points where the target product behavior differs from the current implementation.
+This document describes the repo as it works today.
 
 ## Current Runtime Shape
 
@@ -11,14 +11,12 @@ Today the repo runs as:
 
 - `board` — Next.js 16 web app and API
 - `postgres` — PostgreSQL 16
-- `agent` — Python Telegram bot
+- `agent` — TypeScript/Node.js Telegram bot
 
 Important transition notes:
 
-- the bot is currently Python-based and is planned to move to TypeScript/Node.js
 - machine write auth currently uses `BOARD_API_SECRET`
 - human admin auth now uses `ADMIN_PASSWORD` + session login
-- category create/edit UI is still pending
 
 ## Ports At A Glance
 
@@ -80,10 +78,8 @@ Board URL: [http://localhost:3000](http://localhost:3000)
 In a second terminal:
 
 ```bash
-cd agent
-cp .env.example .env
-uv sync
-uv run python main.py
+cp agent/.env.example agent/.env
+pnpm agent:start
 ```
 
 Current required agent values:
@@ -119,8 +115,7 @@ pnpm dev
 Only start the bot locally when you need to test ingestion:
 
 ```bash
-cd agent
-uv run python main.py
+pnpm agent:start
 ```
 
 ## Database
@@ -184,6 +179,7 @@ The agent container:
 - builds from `agent/Dockerfile`
 - talks to the board via `BOARD_API_URL=http://board:3000`
 - uses `BOARD_API_SECRET` for machine writes
+- runs `pnpm exec tsx agent/main.ts`
 
 ## Board Commands
 
@@ -197,9 +193,7 @@ pnpm lint
 ## Agent Commands
 
 ```bash
-cd agent
-uv sync
-uv run python main.py
+pnpm agent:start
 ```
 
 ## API Reference

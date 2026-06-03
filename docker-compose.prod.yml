@@ -34,16 +34,19 @@ services:
 
   agent:
     build:
-      context: ./agent
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: agent/Dockerfile
     restart: always
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_OWNER_ID: ${TELEGRAM_OWNER_ID}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      SUPADATA_API_KEY: ${SUPADATA_API_KEY}
       BOARD_API_URL: http://board:3000
       BOARD_API_SECRET: ${BOARD_API_SECRET}
+      AI_PROVIDER: ${AI_PROVIDER:-auto}
+      AI_MODEL: ${AI_MODEL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      SUPADATA_API_KEY: ${SUPADATA_API_KEY:-}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-haiku-4-5-20251001}
     depends_on:
       - board

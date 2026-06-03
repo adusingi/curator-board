@@ -68,10 +68,10 @@ returned `200`. Root cause: Next.js was bound to the container hostname only. Fi
 
 | File | Purpose |
 |---|---|
-| `agent/main.py` | Bot entry point — run with `uv run python main.py` |
-| `agent/bot.py` | All handlers — URL ingestion + commands |
-| `agent/parser.py` | OG scrape + Claude category picker |
-| `agent/api_client.py` | HTTP client to board API |
+| `agent/main.ts` | Bot entry point — run with `pnpm agent:start` |
+| `agent/bot.ts` | All handlers — URL ingestion + commands |
+| `agent/parser.ts` | OG scrape + provider-aware category picker |
+| `agent/api-client.ts` | HTTP client to board API |
 | `agent/.env.example` | Env template for the bot |
 | `docker-compose.prod.yml` | Prod deploy — postgres + board + agent |
 | `docs/RUNBOOK.md` | Full setup instructions |
@@ -81,9 +81,9 @@ returned `200`. Root cause: Next.js was bound to the container hostname only. Fi
 ## Architecture reminder
 
 ```
-Telegram → Python agent (long polling)
-             ↓ scrape OG tags (httpx + BS4)
-             ↓ Claude Haiku picks category from seeded list
+Telegram → Node agent (long polling)
+             ↓ scrape OG tags (fetch + cheerio)
+             ↓ configured AI provider picks category or falls back to other
              ↓ POST /api/resources (x-api-key)
            Next.js board (port 3000)
              ↓

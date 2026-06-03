@@ -1,7 +1,6 @@
-FROM python:3.11-slim
+FROM node:22-alpine
 WORKDIR /app
-RUN pip install uv --no-cache-dir
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
-COPY . .
-CMD ["uv", "run", "python", "main.py"]
+COPY package.json pnpm-lock.yaml tsconfig.json ./
+COPY agent ./agent
+RUN corepack enable && pnpm install --frozen-lockfile --ignore-scripts
+CMD ["pnpm", "exec", "tsx", "agent/main.ts"]

@@ -65,10 +65,10 @@
 
 ## 🤖 Phase 3 — Telegram Bot Rewrite
 
-- [ ] **RES-PROD-16** Replace the Python Telegram bot with a TypeScript/Node.js bot
-- [ ] **RES-PROD-17** Keep current Telegram link-capture workflow behaviorally equivalent
-- [ ] **RES-PROD-18** Align bot config and deployment with the new Node-first product story
-- [ ] **RES-PROD-19** Retire the Python bot from the main product path
+- [x] **RES-PROD-16** Replace the Python Telegram bot with a TypeScript/Node.js bot
+- [x] **RES-PROD-17** Keep current Telegram link-capture workflow behaviorally equivalent
+- [x] **RES-PROD-18** Align bot config and deployment with the new Node-first product story
+- [x] **RES-PROD-19** Retire the Python bot from the main product path
 
 ---
 

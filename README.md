@@ -12,7 +12,6 @@ This repository is in active productization. The current codebase already includ
 
 The current implementation still has some transition work in progress:
 
-- the Telegram bot is currently Python-based and is planned to move to TypeScript/Node.js
 - product naming is still being normalized across the repo
 
 ## Product Direction
@@ -33,7 +32,7 @@ The public board is also being redesigned around a built-in multi-theme interfac
 - `app/` — Next.js 16 App Router UI and API routes
 - `components/` — React UI components
 - `lib/` + `db/` — Drizzle schema, migrations, seed scripts, and database access
-- `agent/` — current Python Telegram bot runtime
+- `agent/` — TypeScript Telegram bot runtime
 - `docker-compose.prod.yml` — production compose for `postgres`, `board`, and `agent`
 
 ## How It Works Today
@@ -59,8 +58,6 @@ Current human auth:
 - Node.js 22+
 - `pnpm`
 - Docker
-- Python 3.11+
-- `uv`
 
 ### 1. Start PostgreSQL
 
@@ -110,10 +107,8 @@ Board URL: [http://localhost:3000](http://localhost:3000)
 In a second terminal:
 
 ```bash
-cd agent
-cp .env.example .env
-uv sync
-uv run python main.py
+cp agent/.env.example agent/.env
+pnpm agent:start
 ```
 
 Current required values in `agent/.env`:
@@ -148,9 +143,7 @@ pnpm db:studio
 Agent:
 
 ```bash
-cd agent
-uv sync
-uv run python main.py
+pnpm agent:start
 ```
 
 ## API Surface
@@ -196,7 +189,6 @@ curl -X POST http://localhost:3000/api/resources \
 
 ## Current Gaps Before V1 Sign-Off
 
-- TypeScript/Node.js bot rewrite
 - release packaging, licensing, and buyer-facing install materials
 
 ## Notes

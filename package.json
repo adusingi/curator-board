@@ -7,17 +7,21 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "agent:start": "tsx agent/main.ts",
     "db:migrate": "tsx --env-file .env.local db/migrate.ts",
     "db:seed": "tsx --env-file .env.local db/seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.43.1",
+    "grammy": "^1.43.0",
     "next": "16.2.6",
+    "postgres": "^3.4.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "drizzle-orm": "^0.43.1",
-    "postgres": "^3.4.4",
     "zod": "^3.24.0"
   },
   "devDependencies": {
@@ -33,6 +37,9 @@
     "typescript": "^5"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp", "unrs-resolver"]
+    "onlyBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

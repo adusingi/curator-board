@@ -1,6 +1,6 @@
 # PLANNING.md — Curator Board Self-Hosted Product
 *Architecture, Phases, and Strategic Decisions*
-*Last updated: 2026-06-03*
+*Last updated: 2026-06-04*
 
 ---
 
@@ -21,7 +21,6 @@ The next phase is productization:
 - replace browser-side admin secret entry with proper admin login
 - separate human auth from machine auth
 - make AI categorization provider-agnostic
-- rewrite the Telegram bot to TypeScript/Node.js
 - package the app with deployable installation paths
 
 ---
@@ -104,7 +103,7 @@ curator-board/
 │   ├── migrate.ts
 │   ├── seed.ts
 │   └── migrations/
-├── agent/                      # legacy Python bot to be replaced
+├── agent/                      # TypeScript Telegram bot runtime
 ├── docs/
 │   ├── PRD.md
 │   ├── PLANNING.md
@@ -182,7 +181,7 @@ Included:
 - optional rich metadata enrichment path
 
 ### Phase 4 — Bot Rewrite
-**Goal:** Move the ingestion runtime to TypeScript/Node.js.
+**Goal:** Completed.
 
 Included:
 - TypeScript/Node Telegram bot
@@ -206,7 +205,6 @@ Included:
 |---|---|---|---|
 | Admin auth rewrite breaks current admin flow | Medium | Medium | Land login/session slice first and verify manually |
 | AI provider abstraction grows too broad too early | Medium | Medium | Start with a narrow interface and only implement required providers |
-| Node bot rewrite takes longer than expected | Medium | High | Keep the rewrite scoped to parity with current Telegram workflow |
 | Vercel story is oversold while bot still needs a second runtime | High | Medium | Document it honestly as web on Vercel plus separate bot deploy |
 | Product docs drift from code | Medium | Medium | Keep PRD, PLANNING, TASKS, and RUNBOOK updated together |
 | Theme work expands into open-ended visual polish | Medium | Medium | Keep v1 scope to token refactor, persistent picker, and a curated starter theme set |

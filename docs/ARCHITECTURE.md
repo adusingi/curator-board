@@ -43,14 +43,13 @@ curator-board/
 │       ├── 0000_concerned_doctor_strange.sql  # Initial schema
 │       └── meta/               # Drizzle migration journal + snapshots
 │
-├── agent/                      # Python 3.11 Telegram bot (separate runtime)
-│   ├── main.py                 # Entry point — waits for board, starts polling
-│   ├── bot.py                  # Telegram handler registration + command logic
-│   ├── parser.py               # OG scraper + provider-agnostic category picker
-│   ├── api_client.py           # HTTP client for board REST API
-│   ├── pyproject.toml          # Python dependencies (uv)
-│   ├── uv.lock                 # Locked dependency tree
-│   └── Dockerfile              # python:3.11-slim container
+├── agent/                      # TypeScript Telegram bot runtime
+│   ├── main.ts                 # Entry point — waits for board, starts polling
+│   ├── bot.ts                  # Telegram handler registration + command logic
+│   ├── parser.ts               # OG scraper + provider-agnostic category picker
+│   ├── api-client.ts           # HTTP client for board REST API
+│   ├── .env.example            # Env template for local bot runs
+│   └── Dockerfile              # node:22-alpine container
 │
 ├── docs/
 │   ├── ARCHITECTURE.md         # This file
@@ -95,7 +94,7 @@ graph TD
     Admin["Owner (browser /admin)"]
     TelegramUser["Owner (Telegram)"]
     TelegramAPI["Telegram API"]
-    Agent["agent container\nPython bot"]
+    Agent["agent container\nNode bot"]
     Anthropic["Anthropic API\nClaude (optional)"]
     OpenAI["OpenAI API\nChat Completions (optional)"]
     Supadata["Supadata API\n(optional video metadata)"]
@@ -156,13 +155,13 @@ graph TD
 ### 3.2 Agent (Telegram bot)
 
 - **Purpose:** Accepts URLs from the owner via Telegram, enriches them with metadata, asks the configured AI provider to pick a category when available, then writes the resource to the board API.
-- **Language/frameworks:** Python 3.11, `python-telegram-bot` ≥21, `httpx`, `BeautifulSoup4`, `anthropic` SDK
-- **Entry point:** `agent/main.py` — waits for the board to respond (up to 30 attempts × 10 s), then starts long-polling Telegram.
+- **Language/frameworks:** TypeScript, Node.js 22, `grammy`, native `fetch`, `cheerio`
+- **Entry point:** `agent/main.ts` — waits for the board to respond (up to 30 attempts × 10 s), then starts long-polling Telegram.
 - **Key modules:**
-  - `bot.py` — registers all Telegram command and message handlers
-  - `parser.py` — OG scraping pipeline + provider-agnostic category picker
-  - `api_client.py` — typed HTTP client for all board API calls
-- **Deployment:** Docker container (`agent/Dockerfile`), `python:3.11-slim`. Managed by `uv`.
+  - `bot.ts` — registers all Telegram command and message handlers
+  - `parser.ts` — OG scraping pipeline + provider-agnostic category picker
+  - `api-client.ts` — typed HTTP client for all board API calls
+- **Deployment:** Docker container (`agent/Dockerfile`), `node:22-alpine`. Managed by `pnpm` + `tsx`.
 
 ### 3.3 Database access layer
 
@@ -213,8 +212,8 @@ graph TD
 
 | Service | Purpose | Integration |
 |---|---|---|
-| **Telegram Bot API** | Receives URL submissions from the owner; delivers bot replies | `python-telegram-bot` library, long-polling |
-| **Anthropic API (Claude)** | Optional category picker for submitted resources | `anthropic` Python SDK; selected automatically when `ANTHROPIC_API_KEY` exists, or explicitly via `AI_PROVIDER=anthropic` |
+| **Telegram Bot API** | Receives URL submissions from the owner; delivers bot replies | `grammy`, long-polling |
+| **Anthropic API (Claude)** | Optional category picker for submitted resources | REST POST to `/v1/messages`; selected automatically when `ANTHROPIC_API_KEY` exists, or explicitly via `AI_PROVIDER=anthropic` |
 | **OpenAI API** | Optional category picker for submitted resources | REST POST to `/v1/chat/completions`; selected automatically when `OPENAI_API_KEY` exists and Anthropic is absent, or explicitly via `AI_PROVIDER=openai` |
 | **Supadata API** | Enriches video/social URLs (YouTube, TikTok, Instagram, Twitter/X) with real titles and descriptions | REST GET `https://api.supadata.ai/v1/metadata`; optional — skipped if `SUPADATA_API_KEY` is unset |
 | **YouTube oEmbed** | Fallback title + channel name for YouTube URLs when Supadata is unavailable | Unauthenticated REST GET; no API key required |
@@ -256,10 +255,10 @@ graph TD
 **CI (`ci.yml`)** — triggers on push to `development` or PR to `development`/`main`:
 1. Lint (`pnpm lint`)
 2. Next.js build (with dummy DB URL and API secret)
-3. Python syntax check (`py_compile` on all agent modules)
+3. Type check (`pnpm exec tsc --noEmit`)
 
 **Deploy (`deploy.yml`)** — triggers on push to `main`:
-1. Same lint + build + agent syntax check as CI
+1. Same lint + build + agent type check as CI
 2. Triggers Dokploy webhook (`DOKPLOY_WEBHOOK_URL` secret) to redeploy the full Compose stack
 
 ### Branch strategy
@@ -270,7 +269,7 @@ graph TD
 ### Local development
 
 - Only `docker-compose.yml` is used locally (Postgres on port 5436 only)
-- Next.js runs via `pnpm dev`; agent runs via `uv run python main.py`
+- Next.js runs via `pnpm dev`; agent runs via `pnpm agent:start`
 
 ---
 
@@ -307,8 +306,6 @@ graph TD
 | Node.js | 22+ | Next.js runtime and build |
 | pnpm | latest | Node package manager |
 | Docker | any recent | Local PostgreSQL |
-| Python | 3.11+ | Telegram agent |
-| uv | latest | Python package manager |
 
 ### Local setup
 
@@ -332,11 +329,9 @@ pnpm dev
 # → http://localhost:3000
 
 # 6. (Optional) Start the Telegram agent in a second terminal
-cd agent
-cp .env.example .env
-# Set TELEGRAM_BOT_TOKEN, TELEGRAM_OWNER_ID, ANTHROPIC_API_KEY, BOARD_API_SECRET
-uv sync
-uv run python main.py
+cp agent/.env.example agent/.env
+# Set TELEGRAM_BOT_TOKEN, TELEGRAM_OWNER_ID, BOARD_API_SECRET, and any optional AI keys
+pnpm agent:start
 ```
 
 ### Key commands
@@ -352,9 +347,7 @@ pnpm db:generate   # Generate migration file after schema changes
 pnpm db:studio     # Drizzle Studio at http://localhost:4983
 
 # Agent
-cd agent
-uv sync
-uv run python main.py
+pnpm agent:start
 ```
 
 ### Testing
@@ -362,7 +355,7 @@ uv run python main.py
 There is no automated test suite currently. CI verifies correctness via:
 - `pnpm lint` (ESLint, Next.js preset)
 - `pnpm build` (TypeScript compilation + Next.js build)
-- `python -m py_compile` (syntax check on all agent modules)
+- `pnpm exec tsc --noEmit` (web and agent type checks)
 
 End-to-end verification is done manually by sending a URL to the Telegram bot and checking that it appears on the board.
 
@@ -391,7 +384,7 @@ End-to-end verification is done manually by sending a URL to the Telegram bot an
 - Ensure optional enrichment failures never block resource creation
 
 **Phase 3 — Telegram bot rewrite**
-- Rewrite the Python bot in TypeScript/Node.js to unify the runtime and simplify deployment
+- Completed
 
 **Phase 4 — Packaging and delivery**
 - Vercel-friendly web deployment guide
@@ -400,7 +393,6 @@ End-to-end verification is done manually by sending a URL to the Telegram bot an
 
 ### Known technical debt
 
-- `README.md` still describes the app as a personal one-owner tool; needs updating to reflect the self-hosted product direction.
 - `docs/SELF_HOSTED_V1_PRD.md` and `docs/SELF_HOSTED_V1_ISSUES.md` are working notes; pending decision on whether to merge into canonical docs.
 - No automated test suite — all verification is lint + build + manual.
 
@@ -411,14 +403,14 @@ End-to-end verification is done manually by sending a URL to the Telegram bot an
 | Term | Definition |
 |---|---|
 | **Board** | The Next.js web application (public site + API). Named for the "curator board" concept. |
-| **Agent** | The Python Telegram bot that accepts URLs, enriches them, and writes to the Board API. |
+| **Agent** | The TypeScript/Node.js Telegram bot that accepts URLs, enriches them, and writes to the Board API. |
 | **Resource** | A single saved link: URL + title + optional description + category. |
 | **Category** | A controlled-vocabulary label (e.g. "AI & ML", "Africa") that classifies resources. |
 | **Seeded category** | A category inserted by `db/seed.ts` at deploy time. `seeded = true` in the DB. |
 | **Slug** | URL-safe ASCII identifier for a category (e.g. `ai-ml`, `geopolitics`). |
 | **BOARD_API_SECRET** | Shared 64-char hex secret that authorizes machine write operations via `x-api-key` header. Machine-to-machine auth only. |
-| **ADMIN_PASSWORD** | (Planned, Phase 1) Human admin password for session-based browser login. Separate from `BOARD_API_SECRET`. |
-| **OG scrape** | Fetching Open Graph meta tags (`og:title`, `og:description`) from a URL using httpx + BeautifulSoup. |
+| **ADMIN_PASSWORD** | Human admin password for session-based browser login. Separate from `BOARD_API_SECRET`. |
+| **OG scrape** | Fetching Open Graph meta tags (`og:title`, `og:description`) from a URL using `fetch` + `cheerio`. |
 | **Supadata** | Third-party API (`supadata.ai`) that provides richer metadata for YouTube and social URLs. Optional. |
 | **Dokploy** | Self-hosted PaaS layer that manages Docker Compose deployments, Traefik routing, and Let's Encrypt certificates. |
 | **Standalone output** | Next.js build mode (`output: "standalone"`) that produces a minimal `server.js` runnable without the full `node_modules` tree. |

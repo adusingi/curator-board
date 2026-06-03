@@ -1,5 +1,5 @@
 # V1 Finalization Inputs
-*Last updated: 2026-06-03*
+*Last updated: 2026-06-04*
 
 This file answers a narrow question: what does the agent still need from the repo owner, and what can proceed without further input?
 
@@ -10,7 +10,6 @@ No immediate user input is required to continue implementation.
 The next product work can proceed autonomously:
 
 - preserve optional enrichment behavior while the bot transition continues
-- rewrite the Telegram bot onto the Node.js/TypeScript product path
 - tighten delivery and deployment packaging docs
 
 ## Inputs Needed Before V1 Can Be Truthfully Declared Final
@@ -83,12 +82,12 @@ The following can be decided by implementation without blocking current progress
 - agent env now documents `AI_PROVIDER`, `AI_MODEL`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SUPADATA_API_KEY`, `BOARD_API_URL`, `BOARD_API_SECRET`, and legacy `CLAUDE_MODEL`
 - the current bot implementation can ingest with no AI provider configured and will assign `other` in that case
 - `docs/RUNBOOK.md` now reflects the self-hosted product direction and distinguishes current auth from target v1 auth
-- CI workflows already exist for web lint/build and Python agent syntax checks
+- CI workflows already exist for web lint/build and Node agent type checks
 
 ## Verification Notes
 
 - GitHub Actions currently run web lint/build on `development` and `main` branch workflows
-- GitHub Actions also run Python agent dependency install plus syntax checks
+- GitHub Actions also run Node agent dependency install plus TypeScript checks
 - local `pnpm` verification may still fail in this environment if ignored dependency builds have not been approved, even though CI installs with `--ignore-scripts`
 
 ## Practical Operating Conclusion

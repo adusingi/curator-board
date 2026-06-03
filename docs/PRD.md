@@ -1,6 +1,6 @@
 # PRD.md — Curator Board Self-Hosted Product
 *Product Requirements Document*
-*Last updated: 2026-06-03*
+*Last updated: 2026-06-04*
 
 ---
 
@@ -124,7 +124,7 @@ The first commercial version is not a hosted SaaS. It is a one-time-purchase sou
 |---|---|---|
 | **1 — Productization** | Cleanup, admin auth, category admin, docs refresh | Current |
 | **2 — Ingestion Platform** | AI provider abstraction, no-key fallback, optional enrichment | Planned |
-| **3 — Runtime Shift** | Telegram bot rewrite to TypeScript/Node.js | Planned |
+| **3 — Runtime Shift** | Telegram bot rewrite to TypeScript/Node.js | Completed |
 | **4 — Packaging** | Vercel path, bot deploy path, Docker verification, delivery package | Planned |
 | **5 — Expansion** | WhatsApp, hosted version, multi-user accounts | Future |
 
