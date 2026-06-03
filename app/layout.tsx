@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Resources — adusingi",
+  title: "Curator Board",
   description: "Curated links worth keeping — AI, Africa, geopolitics, tech, and more.",
 };
 

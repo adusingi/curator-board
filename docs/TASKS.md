@@ -1,4 +1,4 @@
-# TASKS.md — Resources Self-Hosted Product
+# TASKS.md — Curator Board Self-Hosted Product
 *Active development tracker*
 *Last updated: 2026-06-03*
 *Current sprint: self-hosted productization*
@@ -20,20 +20,26 @@
 
 ### Follow-up
 - [ ] Decide whether `SELF_HOSTED_V1_PRD.md` and `SELF_HOSTED_V1_ISSUES.md` should remain as working notes or be merged fully into the canonical docs set
-- [ ] Refresh `README.md` so it no longer describes the app as a personal one-owner tool
+- [x] Refresh `README.md` so it no longer describes the app as a personal one-owner tool
+- [x] Refresh `docs/RUNBOOK.md` so it no longer describes the product as a personal deployment and so it reflects the v1 auth direction
 
 ---
 
 ## 🔐 Phase 1 — Admin Auth Productization
 
+### Public board design
+- [ ] **RES-UX-1** Replace the current hardcoded public board styling with semantic theme tokens
+- [ ] **RES-UX-2** Add a keyboard-friendly theme switcher overlay with persistent browser selection
+- [ ] **RES-UX-3** Ship an initial curated set of dark and light themes for v1
+
 ### Auth foundation
-- [ ] **RES-PROD-1** Add `ADMIN_PASSWORD` configuration
-- [ ] **RES-PROD-2** Add admin login flow with session cookie
-- [ ] **RES-PROD-3** Protect admin pages and admin mutations with session auth
-- [ ] **RES-PROD-4** Remove browser-side use of `BOARD_API_SECRET` from admin
+- [x] **RES-PROD-1** Add `ADMIN_PASSWORD` configuration
+- [x] **RES-PROD-2** Add admin login flow with session cookie
+- [x] **RES-PROD-3** Protect admin pages and admin mutations with session auth
+- [x] **RES-PROD-4** Remove browser-side use of `BOARD_API_SECRET` from admin
 
 ### Admin capabilities
-- [ ] **RES-PROD-5** Keep resource edit/delete working behind admin session auth
+- [x] **RES-PROD-5** Keep resource edit/delete working behind admin session auth
 - [ ] **RES-PROD-6** Add category create UI and persistence
 - [ ] **RES-PROD-7** Add category edit UI and persistence
 
@@ -78,6 +84,12 @@
 - [ ] **RES-PROD-24** Define the one-time-purchase delivery package
 - [ ] **RES-PROD-25** Create manual delivery checklist
 - [ ] **RES-PROD-26** Prepare buyer-facing install materials
+
+### Release readiness
+- [ ] **RES-PROD-27** Decide the canonical v1 product name and remove legacy naming drift across docs and UI
+- [ ] **RES-PROD-28** Choose and add the source-code license for the product repo
+- [ ] **RES-PROD-29** Define buyer-facing support and contact text for delivery materials
+- [ ] **RES-PROD-30** Collect the real secrets and deployment target needed for end-to-end release verification
 
 ---
 

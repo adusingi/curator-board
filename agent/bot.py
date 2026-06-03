@@ -68,9 +68,9 @@ async def cmd_list(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     category = ctx.args[0] if ctx.args else None
     items = await api.get_resources(category=category, limit=10)
     if not items:
-        await update.message.reply_text("No resources found.")
+        await update.message.reply_text("No saved links found.")
         return
-    lines = [f"*Recent resources{' in ' + category if category else ''}:*"]
+    lines = [f"*Recent links{' in ' + category if category else ''}:*"]
     for r in items:
         lines.append(f"#{r['id']} [{r['title']}]({r['url']}) — _{r['category']['name']}_")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown", disable_web_page_preview=True)
@@ -126,7 +126,7 @@ async def cmd_addcategory(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def cmd_start(update: Update, _: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "📚 *Resources bot*\n\nSend any URL to save it.\n\n"
+        "📚 *Curator Board bot*\n\nSend any URL to save it.\n\n"
         "/list [category] — recent links\n"
         "/search <query> — search\n"
         "/delete <id> — remove\n"

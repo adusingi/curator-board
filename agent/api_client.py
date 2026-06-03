@@ -1,4 +1,4 @@
-"""HTTP client for the Resources board API."""
+"""HTTP client for the Curator Board API."""
 import os
 import httpx
 

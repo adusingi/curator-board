@@ -363,7 +363,7 @@ wheels = [
 ]
 
 [[package]]
-name = "resources-agent"
+name = "curator-board-agent"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

@@ -1,4 +1,4 @@
-# PRD.md — Resources Self-Hosted Product
+# PRD.md — Curator Board Self-Hosted Product
 *Product Requirements Document*
 *Last updated: 2026-06-03*
 
@@ -6,7 +6,7 @@
 
 ## 1. Product Vision
 
-**Resources** is a self-hosted link-collection product for technical buyers who want to capture links privately through Telegram, classify them automatically, and publish them on their own clean web board.
+**Curator Board** is a self-hosted link-collection product for technical buyers who want to capture links privately through Telegram, classify them automatically, and publish them on their own clean web board.
 
 > "Own your curated link board — capture fast, publish clean, host it yourself."
 
@@ -65,6 +65,11 @@ The first commercial version is not a hosted SaaS. It is a one-time-purchase sou
 - Category filtering is available
 - Each entry includes title, source domain, description excerpt, date, category, and share action
 - No login is required for public readers
+- The public board includes a built-in theme switcher aimed at technical and design-conscious buyers
+- The theme picker should feel keyboard-friendly and deliberate, similar to terminal/theme-centric products rather than a generic settings dropdown
+- The initial release should ship with multiple curated dark and light themes
+- Theme selection should persist per browser without requiring an account
+- The UI should use a token-based theme system so new palettes can be added without rewriting component structure
 
 ### 4.3 Admin Workflow
 
@@ -139,7 +144,10 @@ The first commercial version is not a hosted SaaS. It is a one-time-purchase sou
 10. As a curator, I want to edit resources in the admin UI, so that I can correct titles, descriptions, and categories.
 11. As a curator, I want to create categories in the admin UI, so that taxonomy management is simple.
 12. As a curator, I want to edit categories in the admin UI, so that I can refine taxonomy after deployment.
-13. As a buyer, I want human admin auth separated from bot auth, so that setup is easier to understand and operate.
-14. As a buyer, I want required and optional secrets documented clearly, so that setup is predictable.
-15. As a buyer, I want a Docker-based full-stack option, so that I can deploy everything together if I prefer.
-16. As a buyer, I want the codebase to be clean and focused, so that customization is practical.
+13. As a technical buyer, I want to switch between opinionated built-in themes, so that the product feels personal and distinctive without custom coding.
+14. As a technical buyer, I want the chosen theme to persist in my browser, so that I do not have to reapply it every visit.
+15. As a buyer, I want the public UI to be styled through reusable theme tokens, so that I can add or modify palettes cleanly later.
+16. As a buyer, I want human admin auth separated from bot auth, so that setup is easier to understand and operate.
+17. As a buyer, I want required and optional secrets documented clearly, so that setup is predictable.
+18. As a buyer, I want a Docker-based full-stack option, so that I can deploy everything together if I prefer.
+19. As a buyer, I want the codebase to be clean and focused, so that customization is practical.

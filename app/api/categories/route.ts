@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasBoardApiKey } from "@/lib/board-api-auth";
+import { hasAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { categories } from "@/lib/schema";
 import { eq } from "drizzle-orm";
@@ -20,7 +21,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  if (!hasBoardApiKey(req)) {
+  if (!hasBoardApiKey(req) && !hasAdminSession(req)) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 

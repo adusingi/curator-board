@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasBoardApiKey } from "@/lib/board-api-auth";
+import { hasAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { resources, categories } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!hasBoardApiKey(req)) {
+  if (!hasBoardApiKey(req) && !hasAdminSession(req)) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -32,7 +33,7 @@ const UpdateResourceSchema = z.object({
 });
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!hasBoardApiKey(req)) {
+  if (!hasBoardApiKey(req) && !hasAdminSession(req)) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 

@@ -1,4 +1,4 @@
-"""Entry point for the Resources Telegram bot agent."""
+"""Entry point for the Curator Board Telegram bot agent."""
 import asyncio
 import logging
 import os
@@ -46,7 +46,7 @@ def main() -> None:
     asyncio.run(_wait_for_board())
     token = os.environ["TELEGRAM_BOT_TOKEN"]
     app = build_app(token)
-    logging.info("Resources bot starting — polling…")
+    logging.info("Curator Board bot starting — polling…")
     app.run_polling(allowed_updates=["message"])
 
 

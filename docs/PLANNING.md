@@ -1,4 +1,4 @@
-# PLANNING.md — Resources Self-Hosted Product
+# PLANNING.md — Curator Board Self-Hosted Product
 *Architecture, Phases, and Strategic Decisions*
 *Last updated: 2026-06-03*
 
@@ -6,7 +6,7 @@
 
 ## Project Overview
 
-**Resources** is being repositioned from a personal curation tool into a sellable self-hosted source-code product for technical buyers.
+**Curator Board** is being repositioned from a personal curation tool into a sellable self-hosted source-code product for technical buyers.
 
 The current repo already contains the core product shape:
 - a public Next.js board
@@ -17,6 +17,7 @@ The current repo already contains the core product shape:
 
 The next phase is productization:
 - remove prototype leftovers
+- redesign the public board into a product-quality themed interface
 - replace browser-side admin secret entry with proper admin login
 - separate human auth from machine auth
 - make AI categorization provider-agnostic
@@ -41,6 +42,7 @@ Bot Runtime (TypeScript / Node.js)
    ↓
 Board App (Next.js)
    │ public site
+   │ token-based multi-theme UI
    │ admin login + session auth
    │ GET /api/resources
    │ GET /api/categories
@@ -73,7 +75,7 @@ Write API routes
 | **Language** | TypeScript strict | Product direction is Node/TypeScript-first |
 | **Database** | PostgreSQL 16 | Simple and proven for self-hosted buyers |
 | **ORM** | Drizzle ORM | Lightweight, typed, already in use |
-| **Styling** | Current minimal Next.js app styling | Sufficient for productization phase |
+| **Styling** | Token-based editorial UI with built-in theme palettes | A distinct, themeable interface is part of the v1 product value for technical buyers |
 | **Bot runtime** | TypeScript / Node.js | Aligns with the web stack and easier product packaging |
 | **Metadata fetch** | HTTP fetch + HTML parsing | Cheap default path before optional enrichment |
 | **AI provider layer** | Provider abstraction over buyer-owned keys | Removes hard dependency on one vendor |
@@ -84,7 +86,7 @@ Write API routes
 ## Current Repo Structure
 
 ```
-resources/
+curator-board/
 ├── app/
 │   ├── layout.tsx
 │   ├── page.tsx
@@ -142,6 +144,9 @@ Plain metadata extraction keeps setup simple and cost-free. Optional enrichment 
 ### Why keep Docker even with a Vercel-friendly path?
 Some technical buyers will prefer a single full-stack self-hosted deployment. Docker Compose remains the clearest path for that audience.
 
+### Why include themes in v1?
+This buyer segment cares about taste, customization, and terminal-adjacent aesthetics. A built-in multi-theme system makes the product feel intentional and "ownable" without requiring buyers to fork CSS on day one.
+
 ---
 
 ## Phase Breakdown
@@ -154,6 +159,9 @@ Included:
 - remove dead demo paths
 - simplify repeated auth helper logic
 - align docs with the actual product direction
+- introduce a token-based styling foundation
+- add a keyboard-friendly built-in theme picker
+- ship a small curated set of dark and light themes
 
 ### Phase 2 — Admin and Auth Productization
 **Goal:** Replace prototype admin auth with a real product-ready admin flow.
@@ -201,6 +209,7 @@ Included:
 | Node bot rewrite takes longer than expected | Medium | High | Keep the rewrite scoped to parity with current Telegram workflow |
 | Vercel story is oversold while bot still needs a second runtime | High | Medium | Document it honestly as web on Vercel plus separate bot deploy |
 | Product docs drift from code | Medium | Medium | Keep PRD, PLANNING, TASKS, and RUNBOOK updated together |
+| Theme work expands into open-ended visual polish | Medium | Medium | Keep v1 scope to token refactor, persistent picker, and a curated starter theme set |
 
 ---
 

@@ -1,13 +1,13 @@
-# Handoff — resources.infiniwa.com
+# Handoff — Curator Board
 *Next session focus: monitor Dokploy production deployment*
 
 ---
 
 ## What was built this session
 
-A full Phase 1 implementation of a personal resource curation service at `resources.infiniwa.com`.
-Repo: `git@github.com:adusingi/resources.git` — `main` and `development` both point to the production fix commit.
-Working directory: `/Users/mac3jis/Documents/Code/p/resources`
+A full Phase 1 implementation snapshot of Curator Board.
+Repo: `git@github.com:adusingi/curator-board.git`
+Working directory: `/Users/mac3jis/Documents/Code/p/curator-board`
 
 All context is in the docs — do not re-derive from scratch:
 - `docs/PRD.md` — product requirements, category table, phase roadmap
@@ -22,7 +22,7 @@ All context is in the docs — do not re-derive from scratch:
 
 ### Infrastructure
 - Postgres on **port 5436** via Docker (`docker compose up -d`)
-- Port isolation: 5432=Homebrew, 5433=network-mobayilo, 5434=drive-mobayilo, 5435=kazoku-calendar, **5436=resources**
+- Port isolation: 5432=Homebrew, 5433=network-mobayilo, 5434=drive-mobayilo, 5435=kazoku-calendar, **5436=curator_board**
 - 12 categories seeded
 - Next.js board running at `http://localhost:3000` (`pnpm dev`)
 - UI confirmed working in browser — hybrid C+B layout (editorial serif + sidebar filter)
@@ -45,8 +45,8 @@ node -e "fetch('http://' + process.env.HOSTNAME + ':3000/api/categories').then(r
 returned `200`. Root cause: Next.js was bound to the container hostname only. Fix: add `HOSTNAME=0.0.0.0` to the `board` service in `docker-compose.prod.yml`, commit `0e0cfe5`, push to `development`, then fast-forward `main`.
 
 ### What to monitor next
-1. `https://resources.infiniwa.com` loads consistently
-2. `https://resources.infiniwa.com/api/categories` returns 200
+1. the configured Curator Board domain loads consistently
+2. the deployed `/api/categories` endpoint returns 200
 3. Dokploy board logs remain clean after redeploys
 4. Agent continues polling Telegram and can write to the board API
 
@@ -55,7 +55,7 @@ returned `200`. Root cause: Next.js was bound to the container hostname only. Fi
 ## Next session task list
 
 ### 1. Monitoring
-- Check `https://resources.infiniwa.com/api/categories` after each deploy
+- Check the deployed `/api/categories` endpoint after each deploy
 - In Dokploy, confirm the domain routes to service `board` on port `3000`
 - If Bad Gateway returns, start with `docs/RUNBOOK.md` → "Public site returns Bad Gateway in Dokploy"
 

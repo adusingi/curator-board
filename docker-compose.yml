@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: resources
-      POSTGRES_PASSWORD: resources
-      POSTGRES_DB: resources
+      POSTGRES_USER: curator_board
+      POSTGRES_PASSWORD: curator_board
+      POSTGRES_DB: curator_board
     ports:
       # Port 5436 avoids collision: network-mobayilo (5433), drive-mobayilo (5434), kazoku-calendar (5435)
       - "5436:5432"

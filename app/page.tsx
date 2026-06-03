@@ -46,7 +46,7 @@ export default async function HomePage() {
             marginBottom: 4,
           }}
         >
-          resources.infiniwa.com
+          curator-board
         </div>
         <h1
           style={{
