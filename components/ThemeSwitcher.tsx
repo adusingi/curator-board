@@ -29,6 +29,13 @@ export default function ThemeSwitcher() {
     () => Math.max(0, themes.findIndex((theme) => theme.id === currentThemeId)),
     [currentThemeId],
   );
+  const groupedThemes = useMemo(
+    () => [
+      { label: "dark", items: themes.filter((theme) => theme.group === "dark") },
+      { label: "light", items: themes.filter((theme) => theme.group === "light") },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -94,26 +101,33 @@ export default function ThemeSwitcher() {
             </div>
 
             <div className="theme-group">
-              <div className="theme-separator">
-                <span>{themes[highlightedIndex]?.group ?? "dark"}</span>
-              </div>
-              <div className="theme-options" role="listbox" aria-label="Themes">
-                {themes.map((theme, index) => (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    role="option"
-                    aria-selected={theme.id === currentThemeId}
-                    className="theme-option"
-                    data-highlighted={highlightedIndex === index}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                    onClick={() => chooseTheme(theme.id, index)}
-                  >
-                    <span>{theme.label}</span>
-                    {theme.id === currentThemeId ? <span>✓</span> : null}
-                  </button>
-                ))}
-              </div>
+              {groupedThemes.map((group) => (
+                <div key={group.label} className="theme-group-block">
+                  <div className="theme-separator">
+                    <span>{group.label}</span>
+                  </div>
+                  <div className="theme-options" role="listbox" aria-label={`${group.label} themes`}>
+                    {group.items.map((theme) => {
+                      const index = themes.findIndex((item) => item.id === theme.id);
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          role="option"
+                          aria-selected={theme.id === currentThemeId}
+                          className="theme-option"
+                          data-highlighted={highlightedIndex === index}
+                          onMouseEnter={() => setHighlightedIndex(index)}
+                          onClick={() => chooseTheme(theme.id, index)}
+                        >
+                          <span>{theme.label}</span>
+                          {theme.id === currentThemeId ? <span>✓</span> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="theme-footer">

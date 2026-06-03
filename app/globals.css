@@ -332,6 +332,10 @@ textarea {
   padding: 18px 16px;
 }
 
+.theme-group-block + .theme-group-block {
+  margin-top: 18px;
+}
+
 .theme-separator {
   display: flex;
   align-items: center;

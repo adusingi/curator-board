@@ -30,7 +30,7 @@
 ### Public board design
 - [x] **RES-UX-1** Replace the current hardcoded public board styling with semantic theme tokens
 - [x] **RES-UX-2** Add a keyboard-friendly theme switcher overlay with persistent browser selection
-- [ ] **RES-UX-3** Ship an initial curated set of dark and light themes for v1
+- [x] **RES-UX-3** Ship an initial curated set of dark and light themes for v1
 
 ### Auth foundation
 - [x] **RES-PROD-1** Add `ADMIN_PASSWORD` configuration
