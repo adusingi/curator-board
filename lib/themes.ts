@@ -1,4 +1,5 @@
 export const DEFAULT_THEME_ID = "vesper";
+export const THEME_STORAGE_KEY = "curator-board-theme";
 
 type ThemeDefinition = {
   id: string;
@@ -32,6 +33,10 @@ export const themes: ThemeDefinition[] = [
     },
   },
 ];
+
+export function getThemeById(id: string) {
+  return themes.find((theme) => theme.id === id) ?? themes[0];
+}
 
 export function buildThemeStyles() {
   return themes

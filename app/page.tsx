@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { resources, categories } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 import ResourceList from "@/components/ResourceList";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,7 @@ export default async function HomePage() {
           </p>
         </header>
         <ResourceList items={items} categories={cats} />
+        <ThemeSwitcher />
       </div>
     </div>
   );
