@@ -47,7 +47,6 @@ export default function AdminLoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && !submitting && login()}
         style={{ width: "100%", padding: "0.75rem", marginBottom: "0.75rem", boxSizing: "border-box" }}
-        autoFocus
       />
       <button
         type="button"
