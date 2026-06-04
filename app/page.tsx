@@ -3,6 +3,7 @@ import { resources, categories } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 import ResourceList from "@/components/ResourceList";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import WeatherBadge from "@/components/WeatherBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +31,14 @@ async function getData() {
   return { resources: allResources, categories: allCategories };
 }
 
+const DEFAULT_TITLE = "Collected for the terminal-minded.";
+const DEFAULT_SUMMARY =
+  "A self-hosted board for links worth keeping: quiet enough to browse, structured enough to publish, and opinionated enough to feel like a real product instead of a default template.";
+
 export default async function HomePage() {
   const { resources: items, categories: cats } = await getData();
+  const boardTitle = process.env.BOARD_TITLE || DEFAULT_TITLE;
+  const boardSummary = process.env.BOARD_SUMMARY || DEFAULT_SUMMARY;
 
   return (
     <div className="board-page">
@@ -39,13 +46,10 @@ export default async function HomePage() {
         <header className="board-header">
           <div className="board-header-top">
             <div className="board-eyebrow">Curator Board</div>
-            <div className="board-state">{items.length} saved links</div>
+            <WeatherBadge />
           </div>
-          <h1 className="board-title">Collected for the terminal-minded.</h1>
-          <p className="board-summary">
-            A self-hosted board for links worth keeping: quiet enough to browse, structured enough to publish,
-            and opinionated enough to feel like a real product instead of a default template.
-          </p>
+          <h1 className="board-title">{boardTitle}</h1>
+          <p className="board-summary">{boardSummary}</p>
         </header>
         <ResourceList items={items} categories={cats} />
         <ThemeSwitcher />
