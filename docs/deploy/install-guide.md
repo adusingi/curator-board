@@ -1,6 +1,6 @@
 # Install Guide
 
-*This guide is for buyers. It walks you through deploying the board and Telegram bot from scratch.*
+*This guide is for buyers. It walks you through deploying the full stack on your own server.*
 
 ## What you have
 
@@ -10,96 +10,174 @@ This package contains a self-hosted link curation system:
 - A **Telegram bot** — send any URL and it is saved automatically
 - A **PostgreSQL database** — all data stays on your infrastructure
 
-**Updates:** when a new version is released, you can re-download the latest ZIP from your purchase link at no extra cost.
+Everything runs together on a single server using Docker Compose. You own the server, the data, and the code.
+
+**Updates:** when a new version is released, re-download the latest ZIP from your purchase link at no extra cost.
+
+---
 
 ## Prerequisites
 
-- Node.js 22+ and pnpm (or Docker — see the Docker path below)
-- A Telegram bot token — create one via [@BotFather](https://t.me/BotFather) and get your user ID from [@userinfobot](https://t.me/userinfobot)
-- A PostgreSQL database (local, managed, or Docker)
+- A Linux VPS with Docker and Docker Compose v2 installed (2 GB RAM minimum recommended)
+- A domain pointed at your server's IP address (for HTTPS)
+- A Telegram bot token — create one via [@BotFather](https://t.me/BotFather)
+- Your Telegram user ID — get it from [@userinfobot](https://t.me/userinfobot)
 
-AI categorization is optional. Without an AI key every saved link is assigned to an "other" category. You can add a key later at any time.
+AI categorization is optional. Without an AI key every saved link is assigned to the "other" category. You can add a key at any time.
 
-## Choose your deployment path
+---
 
-### Path 1 — Vercel + separate bot host (easiest for the board)
+## Deployment — three steps
 
-Best if you want the board online with zero server management.
+### 1. Configure your environment
 
-1. **Deploy the board to Vercel** — follow `docs/deploy/deploy-vercel.md`. You will need a managed Postgres database (Neon and Supabase both have free tiers).
-2. **Run the bot on a VPS or any server** — follow `docs/deploy/deploy-bot.md`. The bot only needs outbound internet access and the URL of your deployed board.
+Copy the example file and fill in every required value:
 
-### Path 2 — Docker Compose on a single VPS (everything in one place)
+```bash
+cp .env.example .env
+```
 
-Best if you want one server running everything together.
+Open `.env` and set:
 
-Follow `docs/deploy/deploy-docker.md`. You will need:
-- A VPS with Docker installed (2 GB RAM minimum recommended)
-- A domain pointed at the server (for HTTPS)
+| Variable | Notes |
+|---|---|
+| `POSTGRES_USER` | Any username, e.g. `curator_board` |
+| `POSTGRES_PASSWORD` | Choose a strong password |
+| `POSTGRES_DB` | Any database name, e.g. `curator_board` |
+| `DATABASE_URL` | Must match: `postgresql://<user>:<password>@postgres:5432/<db>` |
+| `BOARD_API_SECRET` | Generate with `openssl rand -hex 32` |
+| `ADMIN_PASSWORD` | Password for the `/admin` UI |
+| `TELEGRAM_BOT_TOKEN` | From @BotFather |
+| `TELEGRAM_OWNER_ID` | Your Telegram numeric user ID |
 
-## Quick-start checklist
+Optional AI categorization (without these every link goes to "other"):
 
-- [ ] Database is running and accessible
-- [ ] `.env.example` copied to `.env.local` (board) and `agent/.env.example` copied to `agent/.env` (bot)
-- [ ] All **required** environment variables filled in (see each env file — required vars are clearly marked)
-- [ ] `pnpm db:migrate` run at least once
-- [ ] Board is reachable at its public URL
-- [ ] Telegram bot is running and responds to a test URL
+| Variable | Notes |
+|---|---|
+| `ANTHROPIC_API_KEY` | Enables Claude categorization |
+| `OPENAI_API_KEY` | Enables OpenAI categorization |
+| `AI_PROVIDER` | `auto` (default), `anthropic`, `openai`, or `none` |
+| `SUPADATA_API_KEY` | Richer metadata for YouTube and social URLs |
 
-## Environment variables at a glance
+### 2. Start the stack
 
-### Board (`.env.local` or Vercel dashboard)
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
 
-| Variable | Required | Notes |
-|---|---|---|
-| `DATABASE_URL` | yes | `postgresql://user:pass@host/db` |
-| `BOARD_API_SECRET` | yes | `openssl rand -hex 32` |
-| `ADMIN_PASSWORD` | yes | Password for `/admin` |
-| `ADMIN_SESSION_SECRET` | no | Defaults to `BOARD_API_SECRET` |
+This builds the board and bot images, starts all three services (postgres, board, agent), runs database migrations automatically, and seeds the default categories. The bot waits for the board to be healthy before it starts polling Telegram.
 
-### Bot (`agent/.env` or container env)
+Verify everything is running:
 
-| Variable | Required | Notes |
-|---|---|---|
-| `TELEGRAM_BOT_TOKEN` | yes | From @BotFather |
-| `TELEGRAM_OWNER_ID` | yes | Your Telegram numeric user ID |
-| `BOARD_API_URL` | yes | Full URL of the deployed board |
-| `BOARD_API_SECRET` | yes | Same value as the board |
-| `ANTHROPIC_API_KEY` | no | Enables Claude categorization |
-| `OPENAI_API_KEY` | no | Enables OpenAI categorization |
-| `SUPADATA_API_KEY` | no | Richer metadata for YouTube/social links |
+```bash
+docker compose -f docker-compose.prod.yml ps
+```
 
-## Accessing the admin panel
+All three services should show `Up`.
 
-Once the board is running, go to `/admin` (e.g. `https://your-domain.com/admin`). Log in with `ADMIN_PASSWORD`. From the admin panel you can:
+### 3. Set up HTTPS with Caddy
 
-- Edit or delete any saved resource
-- Create and rename categories
+The board runs internally on port 3000. Add Caddy in front of it for HTTPS.
 
-## Sending your first link
+Install Caddy on the server, then create a `Caddyfile` in the repo root:
 
-Open the Telegram bot and send any URL as a plain message. The bot will reply with a confirmation once the link is saved, including which category it was assigned to.
+```
+your-domain.com {
+    reverse_proxy board:3000
+}
+```
+
+Add a Caddy service to `docker-compose.prod.yml` so it runs on the same Docker network:
+
+```yaml
+  caddy:
+    image: caddy:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - board
+```
+
+Add to the top-level `volumes` block:
+```yaml
+  caddy_data:
+  caddy_config:
+```
+
+Then restart the stack:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Caddy handles SSL certificates automatically via Let's Encrypt.
+
+---
+
+## Verify the deployment
+
+```bash
+# Board API responding
+curl https://your-domain.com/api/categories
+
+# Admin panel
+# Open https://your-domain.com/admin in your browser
+# Log in with ADMIN_PASSWORD
+
+# Bot
+# Send any URL to your Telegram bot
+# Expect: ⏳ Fetching… then ✅ Added to <category>
+```
+
+---
+
+## Ongoing operations
+
+### View logs
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f board
+docker compose -f docker-compose.prod.yml logs -f agent
+```
+
+### Update to a new version
+
+```bash
+# Download the new ZIP from your purchase link
+# Extract and replace the files, then:
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Migrations run automatically on restart.
+
+### Stop the stack
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+---
 
 ## Troubleshooting
 
-### Bot responds with "Board unavailable"
+**Board exits immediately** — check `DATABASE_URL` matches your `POSTGRES_*` values exactly.
 
-The bot cannot reach the board. Check that `BOARD_API_URL` points to a running board instance and that the board is healthy.
+**Bot replies "Board unavailable"** — board container may still be starting. Check `docker compose ps` and wait for the board to show healthy.
 
-### Board shows a database error on startup
+**Admin login fails** — `ADMIN_PASSWORD` is missing from `.env`. Add it and restart: `docker compose -f docker-compose.prod.yml up -d board`.
 
-`DATABASE_URL` is incorrect or the database is not running. Run `pnpm db:migrate` manually and check the output for connection errors.
+**All links saved as "other"** — no AI provider key configured. This is expected. Add `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` to `.env` and restart the agent: `docker compose -f docker-compose.prod.yml up -d agent`.
 
-### Admin login fails with "ADMIN_PASSWORD is not configured"
-
-`ADMIN_PASSWORD` is missing from the board environment. Add it and restart the board.
-
-### All links are saved as "other"
-
-No AI provider key is configured. This is expected behavior — add `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` to the bot environment and restart it to enable categorization.
+---
 
 ## Need help?
 
 Contact: aimabled@gmail.com
 
-Please include your deployment path (Vercel / Docker / manual) and the relevant log output when reporting issues.
+Please include your server OS, Docker version, and the relevant log output when reporting issues.

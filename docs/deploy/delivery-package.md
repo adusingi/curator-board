@@ -23,10 +23,9 @@ Before sending a delivery, confirm the following are present and up to date:
 
 - [ ] `LICENSE` file at repo root — confirm `[Your Name]` has been replaced with the actual copyright holder name
 - [ ] `README.md` updated with final product name (see RES-PROD-27)
-- [ ] `docs/deploy/install-guide.md` — buyer-facing quick-start
-- [ ] `docs/deploy/deploy-vercel.md` — Vercel board deployment
-- [ ] `docs/deploy/deploy-bot.md` — bot deployment
-- [ ] `docs/deploy/deploy-docker.md` — Docker full-stack deployment
+- [ ] `docs/deploy/install-guide.md` — buyer-facing quick-start (primary deployment guide)
+- [ ] `docs/deploy/deploy-docker.md` — Docker full-stack deployment (detailed reference)
+- [ ] `docs/deploy/deploy-bot.md` — standalone bot deployment (advanced/optional)
 - [ ] `.env.example` — board env reference with required/optional split
 - [ ] `agent/.env.example` — bot env reference with required/optional split
 - [ ] No seller secrets committed to the repo (audit with `git log --all -p | grep -E "sk-|Bearer "`)

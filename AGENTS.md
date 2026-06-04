@@ -57,7 +57,7 @@ If those files disagree, prefer `PRD.md` for product intent, `PLANNING.md` for i
 - `ADMIN_PASSWORD` is for human login; `BOARD_API_SECRET` is for machine writes.
 - Keep AI categorization provider-agnostic.
 - Optional enrichment failures must not block ingestion.
-- Preserve the Vercel-friendly web deployment path while acknowledging that the bot is a separate runtime.
+- The canonical deployment is a single VPS running the full stack via Docker Compose (board + bot + postgres together).
 
 ## Verification
 

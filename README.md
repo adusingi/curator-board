@@ -10,22 +10,19 @@ This repository is in active productization. The current codebase already includ
 - PostgreSQL persistence via Drizzle
 - a Telegram ingestion bot
 
-The current implementation still has some transition work in progress:
-
-- product naming is still being normalized across the repo
-
 ## Product Direction
 
 V1 is aimed at technical buyers and is intentionally not a hosted SaaS.
 
-- self-hosted source-code product
+- self-hosted source-code product — deploy on your own server
 - one installed copy per buyer
 - one curator/admin per installed copy in v1
 - Telegram-only ingestion in v1
 - optional AI categorization
 - optional richer social/video metadata enrichment
+- full stack runs on a single VPS with one Docker Compose command
 
-The public board is also being redesigned around a built-in multi-theme interface for technical buyers who want a more distinctive, terminal-adjacent aesthetic.
+The public board ships with a built-in multi-theme interface for a distinctive, terminal-adjacent aesthetic.
 
 ## Current Stack
 
@@ -178,18 +175,22 @@ curl -X POST http://localhost:3000/api/resources \
   -d '{"url":"https://example.com","title":"Example","categorySlug":"other"}'
 ```
 
+## Deployment
+
+Buyers deploy the full stack — board, bot, and database — on a single VPS with one command:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+See `docs/deploy/install-guide.md` for the complete buyer setup guide.
+
 ## Key Docs
 
-- [docs/PRD.md](/Users/mac3jis/Documents/Code/p/curator-board/docs/PRD.md) — product requirements
-- [docs/PLANNING.md](/Users/mac3jis/Documents/Code/p/curator-board/docs/PLANNING.md) — architecture and phased delivery
-- [docs/TASKS.md](/Users/mac3jis/Documents/Code/p/curator-board/docs/TASKS.md) — active implementation tracker
-- [docs/ARCHITECTURE.md](/Users/mac3jis/Documents/Code/p/curator-board/docs/ARCHITECTURE.md) — current codebase architecture
-- [docs/RUNBOOK.md](/Users/mac3jis/Documents/Code/p/curator-board/docs/RUNBOOK.md) — operational notes and commands
-- [docs/V1_FINALIZATION_INPUTS.md](/Users/mac3jis/Documents/Code/p/curator-board/docs/V1_FINALIZATION_INPUTS.md) — owner-provided inputs needed before final release sign-off
-
-## Current Gaps Before V1 Sign-Off
-
-- release packaging, licensing, and buyer-facing install materials
+- [docs/deploy/install-guide.md](docs/deploy/install-guide.md) — buyer deployment guide
+- [docs/deploy/deploy-docker.md](docs/deploy/deploy-docker.md) — Docker full-stack reference
+- [docs/RUNBOOK.md](docs/RUNBOOK.md) — local development and operational notes
+- [docs/TASKS.md](docs/TASKS.md) — active implementation tracker
 
 ## Notes
 
