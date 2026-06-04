@@ -1,0 +1,18 @@
+# Files marked export-ignore are excluded from git archive (buyer ZIPs)
+# They remain in the repo for internal use.
+
+AGENTS.md                           export-ignore
+docs/adr/                           export-ignore
+docs/ARCHITECTURE.md                export-ignore
+docs/curator-board-test-guide.md    export-ignore
+docs/HANDOFF.md                     export-ignore
+docs/PLANNING.md                    export-ignore
+docs/PRD.md                         export-ignore
+docs/RUNBOOK.md                     export-ignore
+docs/SELF_HOSTED_V1_ISSUES.md       export-ignore
+docs/SELF_HOSTED_V1_PRD.md          export-ignore
+docs/TASKS.md                       export-ignore
+docs/V1_FINALIZATION_INPUTS.md      export-ignore
+docs/deploy/delivery-checklist.md   export-ignore
+docs/deploy/delivery-package.md     export-ignore
+docs/deploy/release-verification.md export-ignore
