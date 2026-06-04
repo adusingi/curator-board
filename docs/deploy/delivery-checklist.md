@@ -41,9 +41,9 @@
 >
 > If you run into any issues, reply to this email or reach us at aimabled@gmail.com.
 >
-> [Seller name]
+> Mobayilo
 
-Replace `[Buyer name]`, `[version tag]`, and `[Seller name]` before sending.
+Replace `[Buyer name]` and `[version tag]` before sending.
 
 ---
 
