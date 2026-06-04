@@ -75,21 +75,21 @@
 ## 📦 Phase 4 — Packaging and Delivery
 
 ### Documentation and deployment
-- [ ] **RES-PROD-20** Write Vercel-friendly web deployment guide
-- [ ] **RES-PROD-21** Write separate bot deployment guide
-- [ ] **RES-PROD-22** Verify and document the Docker full-stack deployment path
-- [ ] **RES-PROD-23** Update env examples to distinguish required vs optional secrets
+- [x] **RES-PROD-20** Write Vercel-friendly web deployment guide
+- [x] **RES-PROD-21** Write separate bot deployment guide
+- [x] **RES-PROD-22** Verify and document the Docker full-stack deployment path
+- [x] **RES-PROD-23** Update env examples to distinguish required vs optional secrets
 
 ### Commercial packaging
-- [ ] **RES-PROD-24** Define the one-time-purchase delivery package
-- [ ] **RES-PROD-25** Create manual delivery checklist
-- [ ] **RES-PROD-26** Prepare buyer-facing install materials
+- [x] **RES-PROD-24** Define the one-time-purchase delivery package
+- [x] **RES-PROD-25** Create manual delivery checklist
+- [x] **RES-PROD-26** Prepare buyer-facing install materials
 
 ### Release readiness
-- [ ] **RES-PROD-27** Decide the canonical v1 product name and remove legacy naming drift across docs and UI
-- [ ] **RES-PROD-28** Choose and add the source-code license for the product repo
-- [ ] **RES-PROD-29** Define buyer-facing support and contact text for delivery materials
-- [ ] **RES-PROD-30** Collect the real secrets and deployment target needed for end-to-end release verification
+- [x] **RES-PROD-27** Decide the canonical v1 product name and remove legacy naming drift across docs and UI
+- [x] **RES-PROD-28** Choose and add the source-code license for the product repo
+- [x] **RES-PROD-29** Define buyer-facing support and contact text for delivery materials
+- [x] **RES-PROD-30** Collect the real secrets and deployment target needed for end-to-end release verification — see docs/deploy/release-verification.md; live smoke-test pending owner credentials and deployment target
 
 ---
 
