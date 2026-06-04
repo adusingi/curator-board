@@ -75,7 +75,7 @@
 ## 📦 Phase 4 — Packaging and Delivery
 
 ### Documentation and deployment
-- [x] **RES-PROD-20** Write Vercel-friendly web deployment guide
+- [x] **RES-PROD-20** ~~Write Vercel-friendly web deployment guide~~ → removed; single-server Docker deployment is the canonical path
 - [x] **RES-PROD-21** Write separate bot deployment guide
 - [x] **RES-PROD-22** Verify and document the Docker full-stack deployment path
 - [x] **RES-PROD-23** Update env examples to distinguish required vs optional secrets

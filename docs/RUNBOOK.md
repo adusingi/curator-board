@@ -296,13 +296,12 @@ What is safe to state today:
 
 - the app has a Docker Compose production path
 - the board can run separately from the bot
-- the product intends to support a Vercel-friendly web deployment path plus a separate bot runtime
+- the product deploys as a full stack on a single VPS using Docker Compose
 
 What should not be assumed finalized yet:
 
 - final public production domain
 - final release packaging
-- final bot runtime language
 
 ## Health Checks
 

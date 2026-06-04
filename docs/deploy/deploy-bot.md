@@ -1,16 +1,18 @@
 # Deploying the Telegram Bot
 
-The bot is a long-running Node.js process that polls Telegram. It must run on a host that supports persistent processes — a VPS, a dedicated server, or a container platform. It cannot run on Vercel or other serverless platforms.
+> **If you are using the recommended Docker Compose full-stack deployment, the bot is already included — no separate steps needed.** See [deploy-docker.md](./deploy-docker.md) and [install-guide.md](./install-guide.md).
+
+This guide is only for running the bot standalone against an already-running board.
 
 ## Prerequisites
 
-- A running board (Vercel or Docker — see [deploy-vercel.md](./deploy-vercel.md) or [deploy-docker.md](./deploy-docker.md))
+- A running board (see [deploy-docker.md](./deploy-docker.md))
 - A Telegram bot token from [@BotFather](https://t.me/BotFather)
 - Your Telegram user ID (get it from [@userinfobot](https://t.me/userinfobot))
 
-## Option A — Docker Compose (recommended with the full stack)
+## Option A — Docker Compose (recommended)
 
-If you are running the full stack with Docker Compose, the bot is already included. See [deploy-docker.md](./deploy-docker.md).
+The bot is included in the full stack. See [deploy-docker.md](./deploy-docker.md).
 
 ## Option B — Docker container (standalone, board hosted separately)
 

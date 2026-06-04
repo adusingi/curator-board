@@ -14,13 +14,13 @@ Collect these before starting. None should be committed to the repo.
 | `TELEGRAM_OWNER_ID` | [@userinfobot](https://t.me/userinfobot) |
 | `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` | Provider dashboard (optional — skip if testing the `other` fallback only) |
 | `SUPADATA_API_KEY` | [supadata.ai](https://supadata.ai) (optional) |
-| Deployment target | VPS/domain for Docker path, or Vercel project URL |
+| Deployment target | A Linux VPS with Docker installed + a domain |
 
 ## Verification steps
 
-### 1. Deploy the board
+### 1. Deploy the full stack
 
-Follow the chosen deployment path (`docs/deploy/deploy-vercel.md` or `docs/deploy/deploy-docker.md`).
+Follow `docs/deploy/install-guide.md`. The single Docker Compose command starts postgres, board, and agent together.
 
 Confirm:
 
@@ -36,9 +36,13 @@ curl https://<board-url>/api/categories
 - Log in with `ADMIN_PASSWORD`
 - Should reach the admin dashboard
 
-### 3. Deploy the bot
+### 3. Confirm the bot is running
 
-Follow `docs/deploy/deploy-bot.md` with the real `TELEGRAM_BOT_TOKEN` and `TELEGRAM_OWNER_ID`.
+The bot starts automatically with the stack. Check logs:
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f agent
+```
 
 ### 4. Send a test URL
 
