@@ -77,24 +77,14 @@ export default function ResourceList({ items, categories }: Props) {
                 <span className="link-arrow">→</span>
 
                 <div className="link-content">
-                  <div className="link-title-row">
-                    <a
-                      href={r.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-title"
-                    >
-                      {r.title}
-                    </a>
-                    <span className="link-domain">{getDomain(r.url)}</span>
-                  </div>
-
-                  {r.description && (
-                    <p className="link-description">
-                      {r.description.length > 105 ? `${r.description.slice(0, 102)}…` : r.description}
-                    </p>
-                  )}
-
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link-title"
+                  >
+                    {r.title}
+                  </a>
                   <div className="link-meta">
                     <span className="link-category">{r.category.name}</span>
                     <span>{formatDate(r.createdAt)}</span>

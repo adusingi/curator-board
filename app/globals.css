@@ -516,10 +516,10 @@ textarea {
 }
 
 .link-card {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 14px;
-  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
   border: 1px solid var(--line);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 74%, transparent), transparent),
@@ -534,52 +534,38 @@ textarea {
 }
 
 .link-arrow {
-  padding-top: 4px;
+  flex-shrink: 0;
   color: var(--muted-soft);
 }
 
 .link-content {
-  min-width: 0;
-}
-
-.link-title-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .link-title {
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.1vw, 1.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .link-title:hover {
   color: var(--accent-strong);
 }
 
-.link-domain {
-  color: var(--muted-soft);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.link-description {
-  margin: 8px 0 0;
-  color: var(--muted);
-  line-height: 1.75;
-  font-size: 12px;
-}
-
 .link-meta {
-  margin-top: 12px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-shrink: 0;
   gap: 10px;
   color: var(--muted-soft);
   font-size: 11px;
