@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { DEFAULT_THEME_ID, getThemeById, themes, THEME_STORAGE_KEY } from "@/lib/themes";
 
+function previewTheme(themeId: string) {
+  document.documentElement.dataset.theme = getThemeById(themeId).id;
+}
+
 function applyTheme(themeId: string) {
   document.documentElement.dataset.theme = getThemeById(themeId).id;
   window.localStorage.setItem(THEME_STORAGE_KEY, themeId);
@@ -43,19 +47,28 @@ export default function ThemeSwitcher() {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
+        previewTheme(currentThemeId);
         setOpen(false);
         return;
       }
 
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        setHighlightedIndex((prev) => (prev + 1) % themes.length);
+        setHighlightedIndex((prev) => {
+          const next = (prev + 1) % themes.length;
+          previewTheme(themes[next].id);
+          return next;
+        });
         return;
       }
 
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        setHighlightedIndex((prev) => (prev - 1 + themes.length) % themes.length);
+        setHighlightedIndex((prev) => {
+          const next = (prev - 1 + themes.length) % themes.length;
+          previewTheme(themes[next].id);
+          return next;
+        });
         return;
       }
 
@@ -74,6 +87,7 @@ export default function ThemeSwitcher() {
 
   function toggleOpen() {
     setHighlightedIndex(themeIndex);
+    if (open) previewTheme(currentThemeId);
     setOpen((prev) => !prev);
   }
 
@@ -93,8 +107,14 @@ export default function ThemeSwitcher() {
       </button>
 
       {open && (
-        <div className="theme-overlay" role="dialog" aria-modal="true" aria-label="Theme switcher">
-          <div className="theme-panel">
+        <div
+          className="theme-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Theme switcher"
+          onClick={(e) => { if (e.target === e.currentTarget) { previewTheme(currentThemeId); setOpen(false); } }}
+        >
+          <div className="theme-panel" onMouseLeave={() => previewTheme(currentThemeId)}>
             <div className="theme-panel-header">
               <div className="theme-panel-title">settings</div>
               <div className="theme-panel-tab">theme</div>
@@ -117,7 +137,7 @@ export default function ThemeSwitcher() {
                           aria-selected={theme.id === currentThemeId}
                           className="theme-option"
                           data-highlighted={highlightedIndex === index}
-                          onMouseEnter={() => setHighlightedIndex(index)}
+                          onMouseEnter={() => { previewTheme(theme.id); setHighlightedIndex(index); }}
                           onClick={() => chooseTheme(theme.id, index)}
                         >
                           <span>{theme.label}</span>
@@ -133,7 +153,7 @@ export default function ThemeSwitcher() {
             <div className="theme-footer">
               <span>↑↓ select</span>
               <span>↵ apply</span>
-              <button type="button" className="theme-close" onClick={() => setOpen(false)}>
+              <button type="button" className="theme-close" onClick={() => { previewTheme(currentThemeId); setOpen(false); }}>
                 esc close
               </button>
             </div>

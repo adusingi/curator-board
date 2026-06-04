@@ -91,6 +91,12 @@ textarea {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 140ms ease;
+}
+
+.weather-badge:hover {
+  border-color: var(--line-strong);
 }
 
 .weather-icon {
@@ -117,6 +123,134 @@ textarea {
 
 .weather-label {
   color: var(--muted);
+}
+
+/* ── Location picker ─────────────────────────────────────────────────────── */
+
+.location-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(var(--background-rgb), 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.location-panel {
+  width: min(400px, 100%);
+  border: 1px solid var(--line-strong);
+  background: var(--background);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.location-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.location-title {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.location-close {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted-soft);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.location-close:hover {
+  border-color: var(--line-strong);
+}
+
+.location-body {
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.location-label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-soft);
+  margin-top: 6px;
+}
+
+.location-label:first-of-type {
+  margin-top: 0;
+}
+
+.location-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--foreground);
+  appearance: none;
+  cursor: pointer;
+}
+
+.location-select:focus {
+  outline: none;
+  border-color: var(--line-strong);
+}
+
+.location-select:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.location-error {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--panel-soft);
+  color: var(--accent-strong);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.location-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.location-apply {
+  padding: 10px 20px;
+  border: 1px solid var(--line-strong);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.location-apply:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--background);
+  border-color: var(--accent);
+}
+
+.location-apply:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .board-title {

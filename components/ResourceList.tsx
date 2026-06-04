@@ -69,34 +69,34 @@ export default function ResourceList({ items, categories }: Props) {
 
       <main className="board-main">
         {filtered.length === 0 ? (
-          <p className="resource-empty">No links yet.</p>
+          <p className="link-empty">No links yet.</p>
         ) : (
-          <div className="resource-list">
+          <div className="link-list">
             {filtered.map((r) => (
-              <article key={r.id} className="resource-card">
-                <span className="resource-arrow">→</span>
+              <article key={r.id} className="link-card">
+                <span className="link-arrow">→</span>
 
-                <div className="resource-content">
-                  <div className="resource-title-row">
+                <div className="link-content">
+                  <div className="link-title-row">
                     <a
                       href={r.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="resource-title"
+                      className="link-title"
                     >
                       {r.title}
                     </a>
-                    <span className="resource-domain">{getDomain(r.url)}</span>
+                    <span className="link-domain">{getDomain(r.url)}</span>
                   </div>
 
                   {r.description && (
-                    <p className="resource-description">
-                      {r.description.length > 360 ? `${r.description.slice(0, 357)}...` : r.description}
+                    <p className="link-description">
+                      {r.description.length > 105 ? `${r.description.slice(0, 102)}…` : r.description}
                     </p>
                   )}
 
-                  <div className="resource-meta">
-                    <span className="resource-category">{r.category.name}</span>
+                  <div className="link-meta">
+                    <span className="link-category">{r.category.name}</span>
                     <span>{formatDate(r.createdAt)}</span>
                     <span>·</span>
                     <button onClick={() => share(r.url, r.title)} className="share-button">
