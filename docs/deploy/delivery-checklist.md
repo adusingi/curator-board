@@ -17,8 +17,8 @@
 ## Delivery
 
 - [ ] Compose delivery email using the template in this file
-- [ ] Attach the ZIP or include the download link
-- [ ] Send from the seller contact address (see RES-PROD-29 for final address)
+- [ ] Share the purchase page link (buyers re-download from there for any future updates)
+- [ ] Send from the seller contact address
 - [ ] BCC or copy to a seller-controlled inbox for the record
 
 ## Post-delivery

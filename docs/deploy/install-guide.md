@@ -10,6 +10,8 @@ This package contains a self-hosted link curation system:
 - A **Telegram bot** — send any URL and it is saved automatically
 - A **PostgreSQL database** — all data stays on your infrastructure
 
+**Updates:** when a new version is released, you can re-download the latest ZIP from your purchase link at no extra cost.
+
 ## Prerequisites
 
 - Node.js 22+ and pnpm (or Docker — see the Docker path below)

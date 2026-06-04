@@ -45,3 +45,13 @@ V1 delivery is manual:
 - Tag each paid delivery commit as `v<major>.<minor>.<patch>`.
 - Include the tag in the delivery email subject and filename.
 - Keep a local log of: buyer name, delivery date, version tag, delivery method.
+
+## Updates for existing buyers
+
+Updates are delivered via the same purchase link (e.g. a Gumroad product page). When a new version is ready:
+
+1. Tag the new commit and generate a fresh ZIP.
+2. Upload the new ZIP to the product page, replacing or adding alongside the previous version.
+3. Buyers who already purchased re-download from the same link at no extra cost.
+
+No action is needed per-buyer — the updated file is available to everyone who has the purchase link.
