@@ -20,7 +20,7 @@ Collect these before starting. None should be committed to the repo.
 
 ### 1. Deploy the board
 
-Follow the chosen deployment path (`docs/deploy-vercel.md` or `docs/deploy-docker.md`).
+Follow the chosen deployment path (`docs/deploy/deploy-vercel.md` or `docs/deploy/deploy-docker.md`).
 
 Confirm:
 
@@ -38,7 +38,7 @@ curl https://<board-url>/api/categories
 
 ### 3. Deploy the bot
 
-Follow `docs/deploy-bot.md` with the real `TELEGRAM_BOT_TOKEN` and `TELEGRAM_OWNER_ID`.
+Follow `docs/deploy/deploy-bot.md` with the real `TELEGRAM_BOT_TOKEN` and `TELEGRAM_OWNER_ID`.
 
 ### 4. Send a test URL
 
@@ -70,4 +70,4 @@ Send a URL with a clear topic (e.g. a GitHub repo or a YouTube video). Confirm i
 - [ ] Tag the verified commit as the v1 release: `git tag v1.0.0`
 - [ ] Fill in `[Your Name]` in `LICENSE`
 - [ ] Generate the delivery ZIP: `git archive v1.0.0 --format=zip -o curator-board-v1.0.0.zip`
-- [ ] Run through `docs/delivery-checklist.md` before sending the first order
+- [ ] Run through `docs/deploy/delivery-checklist.md` before sending the first order

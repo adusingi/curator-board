@@ -24,14 +24,14 @@ AI categorization is optional. Without an AI key every saved link is assigned to
 
 Best if you want the board online with zero server management.
 
-1. **Deploy the board to Vercel** — follow `docs/deploy-vercel.md`. You will need a managed Postgres database (Neon and Supabase both have free tiers).
-2. **Run the bot on a VPS or any server** — follow `docs/deploy-bot.md`. The bot only needs outbound internet access and the URL of your deployed board.
+1. **Deploy the board to Vercel** — follow `docs/deploy/deploy-vercel.md`. You will need a managed Postgres database (Neon and Supabase both have free tiers).
+2. **Run the bot on a VPS or any server** — follow `docs/deploy/deploy-bot.md`. The bot only needs outbound internet access and the URL of your deployed board.
 
 ### Path 2 — Docker Compose on a single VPS (everything in one place)
 
 Best if you want one server running everything together.
 
-Follow `docs/deploy-docker.md`. You will need:
+Follow `docs/deploy/deploy-docker.md`. You will need:
 - A VPS with Docker installed (2 GB RAM minimum recommended)
 - A domain pointed at the server (for HTTPS)
 

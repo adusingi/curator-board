@@ -11,7 +11,7 @@
   ```bash
   git archive <tag> --format=zip -o curator-board-<tag>.zip
   ```
-- [ ] ZIP opened and spot-checked: `LICENSE`, `README.md`, `docs/install-guide.md` all present
+- [ ] ZIP opened and spot-checked: `LICENSE`, `README.md`, `docs/deploy/install-guide.md` all present
 - [ ] No seller secrets in the archive (spot-check `.env.example` files)
 
 ## Delivery
@@ -37,7 +37,7 @@
 >
 > Thank you for your purchase. Attached is Curator Board [version tag].
 >
-> To get started, open `docs/install-guide.md` inside the archive. It walks you through deploying the board and the Telegram bot step by step.
+> To get started, open `docs/deploy/install-guide.md` inside the archive. It walks you through deploying the board and the Telegram bot step by step.
 >
 > If you run into any issues, reply to this email or reach us at aimabled@gmail.com.
 >
