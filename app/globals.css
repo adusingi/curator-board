@@ -79,6 +79,17 @@ textarea {
   text-transform: uppercase;
 }
 
+.weather-badge-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.weather-badge-btn:hover .weather-badge {
+  border-color: var(--line-strong);
+}
+
 .weather-badge {
   display: inline-flex;
   align-items: center;
@@ -91,12 +102,7 @@ textarea {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
-  cursor: pointer;
   transition: border-color 140ms ease;
-}
-
-.weather-badge:hover {
-  border-color: var(--line-strong);
 }
 
 .weather-icon {
@@ -251,6 +257,170 @@ textarea {
 .location-apply:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.location-geo-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.location-geo-btn:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  color: var(--foreground);
+}
+
+.location-geo-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.location-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted-soft);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.location-divider::before,
+.location-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.location-search-wrap {
+  position: relative;
+}
+
+.location-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--foreground);
+}
+
+.location-input:focus {
+  outline: none;
+  border-color: var(--line-strong);
+}
+
+.location-input:disabled {
+  opacity: 0.4;
+}
+
+.location-spinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-soft);
+  font-size: 11px;
+}
+
+.location-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line-strong);
+  border-top: none;
+  background: var(--background);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.location-suggestion {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+}
+
+.location-suggestion:hover {
+  background: var(--accent-wash);
+}
+
+.suggestion-name {
+  flex-shrink: 0;
+}
+
+.suggestion-admin {
+  color: var(--muted-soft);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.location-confirm {
+  display: grid;
+  gap: 12px;
+}
+
+.location-confirm-label {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-soft);
+}
+
+.location-confirm-city {
+  margin: 0;
+  font-size: 14px;
+  color: var(--foreground);
+  letter-spacing: 0.04em;
+}
+
+.location-confirm-hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.location-confirm-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.location-back {
+  border: none;
+  background: none;
+  color: var(--muted-soft);
+  padding: 0;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.location-back:hover {
+  color: var(--muted);
 }
 
 .board-title {

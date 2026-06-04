@@ -46,7 +46,7 @@ export default async function HomePage() {
         <header className="board-header">
           <div className="board-header-top">
             <div className="board-eyebrow">Curator Board</div>
-            <WeatherBadge />
+            <WeatherBadge defaultLat={process.env.WEATHER_LAT} defaultLon={process.env.WEATHER_LON} />
           </div>
           <h1 className="board-title">{boardTitle}</h1>
           <p className="board-summary">{boardSummary}</p>
