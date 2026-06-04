@@ -34,10 +34,7 @@ function createInitialEdits(resources: Resource[]): Record<number, EditState> {
 function createInitialCategoryEdits(categories: Category[]): CategoryEditState {
   const initial: CategoryEditState = {};
   for (const category of categories) {
-    initial[category.id] = {
-      name: category.name,
-      slug: category.slug,
-    };
+    initial[category.id] = { name: category.name, slug: category.slug };
   }
   return initial;
 }
@@ -75,42 +72,21 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
     });
     const data = await res.json().catch(() => null);
     setSaving(null);
-
-    if (res.status === 401) {
-      window.location.href = "/admin/login";
-      return;
-    }
-
-    if (!res.ok) {
-      setError(`#${id}: ${data?.error ?? "Save failed"}`);
-      return;
-    }
-
+    if (res.status === 401) { window.location.href = "/admin/login"; return; }
+    if (!res.ok) { setError(`#${id}: ${data?.error ?? "Save failed"}`); return; }
     setSaved(id);
     setTimeout(() => setSaved(null), 2000);
   }
 
   async function remove(id: number) {
     if (!confirm(`Delete resource #${id}?`)) return;
-
     setDeleting(id);
     setError(null);
-    const res = await fetch(`/api/resources/${id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(`/api/resources/${id}`, { method: "DELETE" });
     const data = await res.json().catch(() => null);
     setDeleting(null);
-
-    if (res.status === 401) {
-      window.location.href = "/admin/login";
-      return;
-    }
-
-    if (!res.ok) {
-      setError(`#${id}: ${data?.error ?? "Delete failed"}`);
-      return;
-    }
-
+    if (res.status === 401) { window.location.href = "/admin/login"; return; }
+    if (!res.ok) { setError(`#${id}: ${data?.error ?? "Delete failed"}`); return; }
     setResources((prev) => prev.filter((r) => r.id !== id));
   }
 
@@ -118,48 +94,27 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
     setEdits((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
   }
 
-  function setCategoryDraft(field: keyof CategoryDraft, value: string) {
-    setNewCategory((prev) => ({ ...prev, [field]: value }));
-  }
-
   async function createCategory() {
     if (!newCategory.name.trim() || !newCategory.slug.trim()) {
       setCategoryError("Name and slug are required.");
       return;
     }
-
     setCreatingCategory(true);
     setCategoryError(null);
-
     const res = await fetch("/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newCategory.name.trim(),
-        slug: newCategory.slug.trim().toLowerCase(),
-      }),
+      body: JSON.stringify({ name: newCategory.name.trim(), slug: newCategory.slug.trim().toLowerCase() }),
     });
     const data = await res.json().catch(() => null);
     setCreatingCategory(false);
-
-    if (res.status === 401) {
-      window.location.href = "/admin/login";
-      return;
-    }
-
-    if (!res.ok) {
-      setCategoryError(data?.error ?? "Category create failed.");
-      return;
-    }
-
+    if (res.status === 401) { window.location.href = "/admin/login"; return; }
+    if (!res.ok) { setCategoryError(data?.error ?? "Category create failed."); return; }
     const created = data?.data as Category;
-    setCategories((prev) => [...prev, created].sort((left, right) => left.name.localeCompare(right.name)));
-    setCategoryEdits((prev) => ({
-      ...prev,
-      [created.id]: { name: created.name, slug: created.slug },
-    }));
+    setCategories((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+    setCategoryEdits((prev) => ({ ...prev, [created.id]: { name: created.name, slug: created.slug } }));
     setNewCategory({ name: "", slug: "" });
-    setCategoryNotice(`Saved category: ${created.name}`);
+    setCategoryNotice(`Saved: ${created.name}`);
     setTimeout(() => setCategoryNotice(null), 2000);
   }
 
@@ -170,271 +125,195 @@ export default function AdminDashboard({ initialCategories, initialResources }: 
   async function saveCategory(id: number) {
     const draft = categoryEdits[id];
     if (!draft?.name.trim() || !draft?.slug.trim()) {
-      setCategoryError("Category name and slug are required.");
+      setCategoryError("Name and slug are required.");
       return;
     }
-
     setSavingCategory(id);
     setCategoryError(null);
-
     const res = await fetch(`/api/categories/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: draft.name.trim(),
-        slug: draft.slug.trim().toLowerCase(),
-      }),
+      body: JSON.stringify({ name: draft.name.trim(), slug: draft.slug.trim().toLowerCase() }),
     });
     const data = await res.json().catch(() => null);
     setSavingCategory(null);
-
-    if (res.status === 401) {
-      window.location.href = "/admin/login";
-      return;
-    }
-
-    if (!res.ok) {
-      setCategoryError(data?.error ?? `Category #${id} update failed.`);
-      return;
-    }
-
+    if (res.status === 401) { window.location.href = "/admin/login"; return; }
+    if (!res.ok) { setCategoryError(data?.error ?? `Category #${id} update failed.`); return; }
     const updated = data?.data as Category;
     setCategories((prev) =>
-      prev
-        .map((category) => (category.id === updated.id ? updated : category))
-        .sort((left, right) => left.name.localeCompare(right.name)),
+      prev.map((c) => (c.id === updated.id ? updated : c)).sort((a, b) => a.name.localeCompare(b.name)),
     );
-    setCategoryEdits((prev) => ({
-      ...prev,
-      [updated.id]: { name: updated.name, slug: updated.slug },
-    }));
+    setCategoryEdits((prev) => ({ ...prev, [updated.id]: { name: updated.name, slug: updated.slug } }));
     setResources((prev) =>
-      prev.map((resource) =>
-        resource.category.id === updated.id
-          ? { ...resource, category: { id: updated.id, name: updated.name, slug: updated.slug } }
-          : resource,
+      prev.map((r) =>
+        r.category.id === updated.id
+          ? { ...r, category: { id: updated.id, name: updated.name, slug: updated.slug } }
+          : r,
       ),
     );
     setEdits((prev) => {
       const next = { ...prev };
-      for (const resource of resources) {
-        if (resource.category.id === updated.id && next[resource.id]) {
-          next[resource.id] = { ...next[resource.id], categorySlug: updated.slug };
+      for (const r of resources) {
+        if (r.category.id === updated.id && next[r.id]) {
+          next[r.id] = { ...next[r.id], categorySlug: updated.slug };
         }
       }
       return next;
     });
-    setCategoryNotice(`Saved category: ${updated.name}`);
+    setCategoryNotice(`Saved: ${updated.name}`);
     setTimeout(() => setCategoryNotice(null), 2000);
   }
 
   return (
-    <div style={{ padding: "1.5rem", fontFamily: "monospace", fontSize: 13 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          marginBottom: "1rem",
-        }}
-      >
-        <h1 style={{ margin: 0 }}>Admin — {resources.length} resources</h1>
-        <button
-          type="button"
-          onClick={logout}
-          disabled={loggingOut}
-          style={{ padding: "0.45rem 0.8rem", cursor: loggingOut ? "wait" : "pointer" }}
-        >
-          {loggingOut ? "Signing out..." : "Sign out"}
+    <div className="admin-page">
+
+      <div className="admin-header">
+        <h1 className="admin-heading">Admin — {resources.length} links</h1>
+        <button className="admin-btn" onClick={logout} disabled={loggingOut}>
+          {loggingOut ? "Signing out…" : "Sign out"}
         </button>
       </div>
-      {error && <p style={{ color: "red", marginBottom: "0.5rem" }}>{error}</p>}
-      <section
-        style={{
-          marginBottom: "1.5rem",
-          padding: "1rem",
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          background: "#fafafa",
-        }}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: 14 }}>Create category</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, alignItems: "end" }}>
-          <label style={{ display: "grid", gap: 6 }}>
+
+      {error && <p className="admin-error">{error}</p>}
+
+      {/* Create category */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Create category</h2>
+        {categoryError && <p className="admin-error">{categoryError}</p>}
+        {categoryNotice && <p className="admin-notice">{categoryNotice}</p>}
+        <div className="admin-form-row">
+          <label className="admin-label">
             <span>Name</span>
             <input
+              className="admin-input"
               value={newCategory.name}
-              onChange={(event) => setCategoryDraft("name", event.target.value)}
-              style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+              onChange={(e) => setNewCategory((p) => ({ ...p, name: e.target.value }))}
             />
           </label>
-          <label style={{ display: "grid", gap: 6 }}>
+          <label className="admin-label">
             <span>Slug</span>
             <input
+              className="admin-input"
               value={newCategory.slug}
-              onChange={(event) => setCategoryDraft("slug", event.target.value)}
-              style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+              onChange={(e) => setNewCategory((p) => ({ ...p, slug: e.target.value }))}
             />
           </label>
-          <button
-            type="button"
-            onClick={createCategory}
-            disabled={creatingCategory}
-            style={{ padding: "0.6rem 1rem", cursor: creatingCategory ? "wait" : "pointer", height: "fit-content" }}
-          >
-            {creatingCategory ? "Creating..." : "Add"}
+          <button className="admin-btn admin-btn-primary" onClick={createCategory} disabled={creatingCategory}>
+            {creatingCategory ? "Creating…" : "Add"}
           </button>
         </div>
-        {categoryError && <p style={{ color: "#c62828", marginBottom: 0 }}>{categoryError}</p>}
-        {categoryNotice && <p style={{ color: "#2e7d32", marginBottom: 0 }}>{categoryNotice}</p>}
       </section>
-      <section
-        style={{
-          marginBottom: "1.5rem",
-          padding: "1rem",
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          background: "#fff",
-        }}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: 14 }}>Edit categories</h2>
-        <div style={{ display: "grid", gap: 8 }}>
-          {categories.map((category) => {
-            const draft = categoryEdits[category.id];
-            if (!draft) return null;
 
-            const isSavingCategory = savingCategory === category.id;
+      {/* Edit categories */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Edit categories</h2>
+        {categoryNotice && <p className="admin-notice">{categoryNotice}</p>}
+        <div className="admin-category-list">
+          {categories.map((cat) => {
+            const draft = categoryEdits[cat.id];
+            if (!draft) return null;
+            const isSaving = savingCategory === cat.id;
             return (
-              <div
-                key={category.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr auto",
-                  gap: 10,
-                  alignItems: "end",
-                  padding: "0.6rem 0",
-                  borderTop: "1px solid #eee",
-                }}
-              >
-                <label style={{ display: "grid", gap: 6 }}>
+              <div key={cat.id} className="admin-category-row">
+                <label className="admin-label">
                   <span>Name</span>
                   <input
+                    className="admin-input"
                     value={draft.name}
-                    onChange={(event) => setCategoryField(category.id, "name", event.target.value)}
-                    style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+                    onChange={(e) => setCategoryField(cat.id, "name", e.target.value)}
                   />
                 </label>
-                <label style={{ display: "grid", gap: 6 }}>
+                <label className="admin-label">
                   <span>Slug</span>
                   <input
+                    className="admin-input"
                     value={draft.slug}
-                    onChange={(event) => setCategoryField(category.id, "slug", event.target.value)}
-                    style={{ width: "100%", padding: "0.55rem", boxSizing: "border-box" }}
+                    onChange={(e) => setCategoryField(cat.id, "slug", e.target.value)}
                   />
                 </label>
-                <button
-                  type="button"
-                  onClick={() => saveCategory(category.id)}
-                  disabled={isSavingCategory}
-                  style={{
-                    padding: "0.6rem 1rem",
-                    cursor: isSavingCategory ? "wait" : "pointer",
-                    height: "fit-content",
-                  }}
-                >
-                  {isSavingCategory ? "Saving..." : "Save"}
+                <button className="admin-btn" onClick={() => saveCategory(cat.id)} disabled={isSaving}>
+                  {isSaving ? "Saving…" : "Save"}
                 </button>
               </div>
             );
           })}
         </div>
-        {categoryNotice && <p style={{ color: "#2e7d32", marginBottom: 0 }}>{categoryNotice}</p>}
       </section>
-      <table style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead>
-          <tr style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
-            <th style={{ padding: "4px 8px", width: 30 }}>ID</th>
-            <th style={{ padding: "4px 8px", width: 200 }}>URL</th>
-            <th style={{ padding: "4px 8px" }}>Title</th>
-            <th style={{ padding: "4px 8px", width: 160 }}>Category</th>
-            <th style={{ padding: "4px 8px", width: 100 }}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {resources.map((r) => {
-            const e = edits[r.id];
-            if (!e) return null;
-            const isSaving = saving === r.id;
-            const isDeleting = deleting === r.id;
-            const wasSaved = saved === r.id;
-            return (
-              <tr key={r.id} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={{ padding: "4px 8px", color: "#888" }}>{r.id}</td>
-                <td style={{ padding: "4px 8px" }}>
-                  <a
-                    href={r.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: "#555", textDecoration: "none", fontSize: 11 }}
-                    title={r.url}
-                  >
-                    {r.url.replace(/^https?:\/\//, "").slice(0, 30)}…
-                  </a>
-                </td>
-                <td style={{ padding: "4px 8px" }}>
-                  <input
-                    value={e.title}
-                    onChange={(ev) => setField(r.id, "title", ev.target.value)}
-                    style={{ width: "100%", padding: "2px 4px", boxSizing: "border-box" }}
-                  />
-                </td>
-                <td style={{ padding: "4px 8px" }}>
-                  <select
-                    value={e.categorySlug}
-                    onChange={(ev) => setField(r.id, "categorySlug", ev.target.value)}
-                    style={{ width: "100%", padding: "2px 4px" }}
-                  >
-                    {categories.map((c) => (
-                      <option key={c.slug} value={c.slug}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td style={{ padding: "4px 8px", whiteSpace: "nowrap" }}>
-                  <button
-                    onClick={() => save(r.id)}
-                    disabled={isSaving || isDeleting}
-                    style={{
-                      padding: "2px 8px",
-                      cursor: isSaving ? "wait" : "pointer",
-                      marginRight: 4,
-                      background: wasSaved ? "#4caf50" : undefined,
-                      color: wasSaved ? "white" : undefined,
-                    }}
-                  >
-                    {wasSaved ? "✓" : isSaving ? "…" : "Save"}
-                  </button>
-                  <button
-                    onClick={() => remove(r.id)}
-                    disabled={isSaving || isDeleting}
-                    style={{
-                      padding: "2px 8px",
-                      cursor: isDeleting ? "wait" : "pointer",
-                      background: "#e53935",
-                      color: "white",
-                      border: "none",
-                    }}
-                  >
-                    {isDeleting ? "…" : "Del"}
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+
+      {/* Resources table */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Links</h2>
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>URL</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {resources.map((r) => {
+              const e = edits[r.id];
+              if (!e) return null;
+              const isSaving = saving === r.id;
+              const isDeleting = deleting === r.id;
+              const wasSaved = saved === r.id;
+              return (
+                <tr key={r.id}>
+                  <td className="admin-td-muted">{r.id}</td>
+                  <td>
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="admin-link"
+                      title={r.url}
+                    >
+                      {r.url.replace(/^https?:\/\//, "").slice(0, 32)}…
+                    </a>
+                  </td>
+                  <td>
+                    <input
+                      className="admin-input admin-input-sm"
+                      value={e.title}
+                      onChange={(ev) => setField(r.id, "title", ev.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <select
+                      className="admin-select"
+                      value={e.categorySlug}
+                      onChange={(ev) => setField(r.id, "categorySlug", ev.target.value)}
+                    >
+                      {categories.map((c) => (
+                        <option key={c.slug} value={c.slug}>{c.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="admin-td-actions">
+                    <button
+                      className={`admin-btn admin-btn-sm ${wasSaved ? "admin-btn-saved" : ""}`}
+                      onClick={() => save(r.id)}
+                      disabled={isSaving || isDeleting}
+                    >
+                      {wasSaved ? "✓" : isSaving ? "…" : "Save"}
+                    </button>
+                    <button
+                      className="admin-btn admin-btn-sm admin-btn-danger"
+                      onClick={() => remove(r.id)}
+                      disabled={isSaving || isDeleting}
+                    >
+                      {isDeleting ? "…" : "Del"}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }
