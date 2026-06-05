@@ -1,5 +1,5 @@
 # ARCHITECTURE — Curator Board
-*Last updated: 2026-06-04*
+*Last updated: 2026-06-05*
 
 ---
 
@@ -57,9 +57,6 @@ curator-board/
 │   ├── PLANNING.md             # Implementation phasing
 │   ├── TASKS.md                # Active task tracker
 │   ├── RUNBOOK.md              # Operational reference
-│   ├── HANDOFF.md              # Context handoff document
-│   ├── SELF_HOSTED_V1_PRD.md   # Self-hosted product PRD
-│   ├── SELF_HOSTED_V1_ISSUES.md # Issue-ready task breakdown
 │   └── adr/
 │       ├── 0001-seeded-categories-with-llm-picker.md
 │       ├── 0002-og-scrape-before-llm.md
@@ -67,7 +64,6 @@ curator-board/
 │
 ├── .github/workflows/
 │   ├── ci.yml                  # Lint + build on development branch / PRs
-│   └── deploy.yml              # Lint + build + Dokploy webhook on main
 │
 ├── Dockerfile                  # Multi-stage Next.js production image
 ├── docker-compose.yml          # Local dev: Postgres only (port 5436)
@@ -230,8 +226,7 @@ graph TD
 
 ### Production environment
 
-- **Platform:** Self-hosted Docker Compose via **Dokploy** (manages containers + Traefik reverse proxy + Let's Encrypt TLS)
-- **Public URL:** Final production domain still to be confirmed
+- **Platform:** Self-hosted Docker Compose
 - **Compose file:** `docker-compose.prod.yml`
 
 #### Production services
@@ -239,7 +234,7 @@ graph TD
 | Service | Image | Port | Purpose |
 |---|---|---|---|
 | `postgres` | `postgres:16-alpine` | internal only | Persistent database; health-checked before dependents start |
-| `board` | built from `Dockerfile` | 3000 (internal) | Next.js app + API; `HOSTNAME=0.0.0.0` required for Traefik routing |
+| `board` | built from `Dockerfile` | 3000 (internal) | Next.js app + API; `HOSTNAME=0.0.0.0` allows container-wide binding |
 | `agent` | built from `agent/Dockerfile` | none | Telegram bot; connects to board via `http://board:3000` |
 
 ### Next.js Docker build (multi-stage)
@@ -250,16 +245,12 @@ graph TD
 | `builder` | `node:22-alpine` | Runs `pnpm build` with standalone output |
 | `runner` | `node:22-alpine` | Minimal production image; includes `tsx`, migration files, and Drizzle packages needed at runtime |
 
-### CI/CD pipeline
+### CI pipeline
 
 **CI (`ci.yml`)** — triggers on push to `development` or PR to `development`/`main`:
 1. Lint (`pnpm lint`)
 2. Next.js build (with dummy DB URL and API secret)
 3. Type check (`pnpm exec tsc --noEmit`)
-
-**Deploy (`deploy.yml`)** — triggers on push to `main`:
-1. Same lint + build + agent type check as CI
-2. Triggers Dokploy webhook (`DOKPLOY_WEBHOOK_URL` secret) to redeploy the full Compose stack
 
 ### Branch strategy
 
@@ -288,7 +279,7 @@ graph TD
 
 ### Transport security
 
-- Production TLS is managed by Dokploy / Traefik (Let's Encrypt). All public traffic is HTTPS.
+- Production TLS depends on the operator's reverse proxy or hosting setup.
 - Internal Docker network communication (agent → board, board → postgres) is unencrypted but contained within the Docker bridge network.
 
 ### Known security gaps (tracked in roadmap)
@@ -373,27 +364,20 @@ End-to-end verification is done manually by sending a URL to the Telegram bot an
 
 ### Active roadmap (from `docs/TASKS.md`)
 
-**Phase 1 — Admin auth productization**
-- Replace browser-side `BOARD_API_SECRET` entry with `ADMIN_PASSWORD` + session cookie
-- Add session-protected admin pages; remove client-side secret exposure
-- Add category create/edit UI
+**Open-source cleanup**
+- Keep the repository public-ready and remove internal-only material
+- Keep contributor guidance and setup docs current
 
-**Phase 2 — Ingestion platform**
-- Allow ingestion with no AI provider configured (fall back to `other` category)
-- Introduce provider-agnostic categorization interface
+**Ingestion and auth**
+- Preserve no-provider fallback to `other`
+- Keep provider-agnostic categorization
 - Ensure optional enrichment failures never block resource creation
 
-**Phase 3 — Telegram bot rewrite**
-- Completed
-
-**Phase 4 — Packaging and delivery**
-- Vercel-friendly web deployment guide
-- Separate bot deployment guide
-- One-time-purchase delivery package with buyer-facing install materials
+**Runtime**
+- TypeScript/Node Telegram bot is the primary ingestion runtime
 
 ### Known technical debt
 
-- `docs/SELF_HOSTED_V1_PRD.md` and `docs/SELF_HOSTED_V1_ISSUES.md` are working notes; pending decision on whether to merge into canonical docs.
 - No automated test suite — all verification is lint + build + manual.
 
 ---
@@ -412,10 +396,8 @@ End-to-end verification is done manually by sending a URL to the Telegram bot an
 | **ADMIN_PASSWORD** | Human admin password for session-based browser login. Separate from `BOARD_API_SECRET`. |
 | **OG scrape** | Fetching Open Graph meta tags (`og:title`, `og:description`) from a URL using `fetch` + `cheerio`. |
 | **Supadata** | Third-party API (`supadata.ai`) that provides richer metadata for YouTube and social URLs. Optional. |
-| **Dokploy** | Self-hosted PaaS layer that manages Docker Compose deployments, Traefik routing, and Let's Encrypt certificates. |
 | **Standalone output** | Next.js build mode (`output: "standalone"`) that produces a minimal `server.js` runnable without the full `node_modules` tree. |
 | **Drizzle** | TypeScript ORM used for schema definition, query building, and migration management. |
-| **uv** | Fast Python package and project manager (replaces pip + venv) used to manage the agent's dependencies. |
 
 ---
 
@@ -425,6 +407,5 @@ End-to-end verification is done manually by sending a URL to the Telegram bot an
 |---|---|
 | **Project name** | Curator Board |
 | **Repository** | `git@github.com:adusingi/curator-board.git` |
-| **Public URL** | Final production domain still to be confirmed |
 | **Primary contact** | adusingi (git user) |
-| **Last updated** | 2026-06-03 |
+| **Last updated** | 2026-06-05 |

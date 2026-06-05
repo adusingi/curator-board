@@ -83,7 +83,7 @@ export default function ThemeSwitcher() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [highlightedIndex, open]);
+  }, [currentThemeId, highlightedIndex, open]);
 
   function toggleOpen() {
     setHighlightedIndex(themeIndex);

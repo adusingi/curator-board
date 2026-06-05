@@ -16,13 +16,12 @@ If those files disagree, prefer `PRD.md` for product intent, `PLANNING.md` for i
 
 ## Product Context
 
-- This repo is the sellable self-hosted Curator Board product.
-- Use `Curator Board` as the product and repo name. Do not introduce or preserve legacy `Resources` naming in product-facing docs, metadata, config defaults, or UI text unless a specific technical identifier still requires it.
-- v1 is for technical buyers.
-- v1 supports one admin per installed copy.
-- Telegram is the only ingestion channel in v1.
+- This repo is the open-source Curator Board project.
+- Use `Curator Board` as the product and repo name. Do not introduce or preserve legacy `Resources` naming in docs, metadata, config defaults, or UI text unless a specific technical identifier still requires it.
+- The current release supports one admin per installed copy.
+- Telegram is the only ingestion channel in the current release.
 - Human admin auth and machine-to-machine auth must remain separate.
-- The product must continue to work without an AI provider key by falling back to category `other`.
+- The project must continue to work without an AI provider key by falling back to category `other`.
 
 ## Branch Rules
 
@@ -36,7 +35,7 @@ If those files disagree, prefer `PRD.md` for product intent, `PLANNING.md` for i
 ## Delivery Rules
 
 - Make the smallest complete change that solves the task.
-- Keep changes aligned with the current productization roadmap instead of reopening settled product decisions.
+- Keep changes aligned with the current roadmap instead of reopening settled product decisions.
 - When you complete work that changes behavior, update the relevant docs in the same task when practical.
 - When you finish a coherent feature slice or completed issue, commit it unless the user explicitly asks you not to.
 - If the user asks for architecture documentation, use the `architecture` skill to create or refresh [`docs/ARCHITECTURE.md`](/Users/mac3jis/Documents/Code/p/curator-board/docs/ARCHITECTURE.md).
@@ -57,7 +56,7 @@ If those files disagree, prefer `PRD.md` for product intent, `PLANNING.md` for i
 - `ADMIN_PASSWORD` is for human login; `BOARD_API_SECRET` is for machine writes.
 - Keep AI categorization provider-agnostic.
 - Optional enrichment failures must not block ingestion.
-- The canonical deployment is a single VPS running the full stack via Docker Compose (board + bot + postgres together).
+- The canonical deployment is the full stack via Docker Compose (board + bot + postgres together).
 
 ## Verification
 

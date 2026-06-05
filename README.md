@@ -1,28 +1,27 @@
 # Curator Board
 
-Curator Board is a self-hosted source-code product for technical buyers who want to capture links privately through Telegram, organize them into categories, and publish them on a clean public board.
+Curator Board is an open-source link curation app for collecting links through Telegram, organizing them into categories, and publishing them on a clean public board.
 
-This repository is in active productization. The current codebase already includes:
+The repository currently includes:
 
 - a Next.js public board
-- REST API routes for curated links and categories
-- a minimal admin surface
+- REST API routes for resources and categories
+- a session-based admin UI
 - PostgreSQL persistence via Drizzle
-- a Telegram ingestion bot
+- a TypeScript Telegram ingestion bot
 
-## Product Direction
+## Project Direction
 
-V1 is aimed at technical buyers and is intentionally not a hosted SaaS.
+Curator Board is now maintained as an open-source project.
 
-- self-hosted source-code product — deploy on your own server
-- one installed copy per buyer
-- one curator/admin per installed copy in v1
-- Telegram-only ingestion in v1
+- self-hosted by default
+- one admin account per installation in the current release
+- Telegram-only ingestion in the current release
 - optional AI categorization
-- optional richer social/video metadata enrichment
-- full stack runs on a single VPS with one Docker Compose command
+- optional richer social and video metadata enrichment
+- Docker Compose deployment for the full stack
 
-The public board ships with a built-in multi-theme interface for a distinctive, terminal-adjacent aesthetic.
+The public board ships with a built-in multi-theme interface.
 
 ## Current Stack
 
@@ -32,9 +31,9 @@ The public board ships with a built-in multi-theme interface for a distinctive, 
 - `agent/` — TypeScript Telegram bot runtime
 - `docker-compose.prod.yml` — production compose for `postgres`, `board`, and `agent`
 
-## How It Works Today
+## How It Works
 
-1. A curator sends a URL to the Telegram bot.
+1. An admin sends a URL to the Telegram bot.
 2. The agent fetches Open Graph metadata and optional richer social/video metadata.
 3. The agent picks a category and writes the resource to the board API.
 4. The public site and JSON API expose the curated list.
@@ -68,7 +67,7 @@ docker compose up -d
 cp .env.example .env.local
 ```
 
-Current required values in `.env.local`:
+Required values in `.env.local`:
 
 - `DATABASE_URL`
 - `BOARD_API_SECRET`
@@ -78,7 +77,7 @@ Optional:
 
 - `ADMIN_SESSION_SECRET`
 
-### 3. Install Node dependencies
+### 3. Install dependencies
 
 ```bash
 pnpm install --ignore-scripts
@@ -108,7 +107,7 @@ cp agent/.env.example agent/.env
 pnpm agent:start
 ```
 
-Current required values in `agent/.env`:
+Required values in `agent/.env`:
 
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_OWNER_ID`
@@ -152,7 +151,7 @@ pnpm agent:start
 - `GET /api/resources?q=<query>`
 - `GET /api/categories`
 
-### Current protected write endpoints
+### Protected write endpoints
 
 - `POST /api/resources`
 - `PATCH /api/resources/:id`
@@ -160,7 +159,7 @@ pnpm agent:start
 - `POST /api/categories`
 - `PATCH /api/categories/:id`
 
-Machine write requests currently require:
+Machine write requests require:
 
 ```text
 x-api-key: <BOARD_API_SECRET>
@@ -177,23 +176,33 @@ curl -X POST http://localhost:3000/api/resources \
 
 ## Deployment
 
-Buyers deploy the full stack — board, bot, and database — on a single VPS with one command:
+Run the full stack locally or on a server with:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-See `docs/deploy/install-guide.md` for the complete buyer setup guide.
+See [docs/deploy/install-guide.md](./docs/deploy/install-guide.md) for a step-by-step setup guide.
+
+## Contributing
+
+Open an issue or submit a pull request if you want to improve Curator Board. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the current workflow.
+
+## Support
+
+- Support the project: [Buy Me a Coffee](https://buymeacoffee.com/adusingi)
+- Source code: [GitHub](https://github.com/adusingi/curator-board)
 
 ## Key Docs
 
-- [docs/deploy/install-guide.md](docs/deploy/install-guide.md) — buyer deployment guide
-- [docs/deploy/deploy-docker.md](docs/deploy/deploy-docker.md) — Docker full-stack reference
-- [docs/RUNBOOK.md](docs/RUNBOOK.md) — local development and operational notes
-- [docs/TASKS.md](docs/TASKS.md) — active implementation tracker
+- [docs/deploy/install-guide.md](./docs/deploy/install-guide.md) — setup guide
+- [docs/deploy/deploy-docker.md](./docs/deploy/deploy-docker.md) — Docker full-stack reference
+- [docs/deploy/deploy-bot.md](./docs/deploy/deploy-bot.md) — standalone bot deployment
+- [docs/RUNBOOK.md](./docs/RUNBOOK.md) — local development and operational notes
+- [docs/TASKS.md](./docs/TASKS.md) — active implementation tracker
 
 ## Notes
 
 - Secrets should be injected at runtime, not baked into images.
-- The codebase should be treated as the product repo, not a personal deployment snapshot.
-- If product docs and code disagree, treat the code as the current implementation and the docs as the intended direction unless a task explicitly says otherwise.
+- Human admin auth and bot auth are intentionally separate.
+- If no AI provider key is configured, ingestion still works and falls back to category `other`.

@@ -1,27 +1,28 @@
-# PLANNING.md — Curator Board Self-Hosted Product
-*Architecture, Phases, and Strategic Decisions*
-*Last updated: 2026-06-04*
+# PLANNING.md — Curator Board
+*Architecture, phases, and delivery direction*
+*Last updated: 2026-06-05*
 
 ---
 
 ## Project Overview
 
-**Curator Board** is being repositioned from a personal curation tool into a sellable self-hosted source-code product for technical buyers.
+**Curator Board** is an open-source self-hosted application for collecting links through Telegram and publishing them on a themed public board.
 
-The current repo already contains the core product shape:
+The codebase already contains:
+
 - a public Next.js board
 - a resource/category API
 - admin editing
 - Telegram-based ingestion
 - PostgreSQL-backed storage
 
-The next phase is productization:
-- remove prototype leftovers
-- redesign the public board into a product-quality themed interface
-- replace browser-side admin secret entry with proper admin login
-- separate human auth from machine auth
-- make AI categorization provider-agnostic
-- package the app with deployable installation paths
+The current planning focus is:
+
+- remove commercial and internal-only repo material
+- keep the public board polished and themeable
+- preserve separate human and machine auth
+- keep AI categorization provider-agnostic
+- document reliable self-hosted deployment paths
 
 ---
 
@@ -29,7 +30,7 @@ The next phase is productization:
 
 ### Current target architecture
 
-```
+```text
 Telegram
    ↓
 Bot Runtime (TypeScript / Node.js)
@@ -52,7 +53,7 @@ PostgreSQL
 
 ### Human vs machine auth
 
-```
+```text
 Admin user
    ↓ login with ADMIN_PASSWORD
 Session cookie
@@ -70,132 +71,69 @@ Write API routes
 
 | Layer | Choice | Rationale |
 |---|---|---|
-| **Web framework** | Next.js 16 (App Router) | One app for UI and API routes, already working |
-| **Language** | TypeScript strict | Product direction is Node/TypeScript-first |
-| **Database** | PostgreSQL 16 | Simple and proven for self-hosted buyers |
-| **ORM** | Drizzle ORM | Lightweight, typed, already in use |
-| **Styling** | Token-based editorial UI with built-in theme palettes | A distinct, themeable interface is part of the v1 product value for technical buyers |
-| **Bot runtime** | TypeScript / Node.js | Aligns with the web stack and easier product packaging |
+| **Web framework** | Next.js 16 (App Router) | One app for UI and API routes |
+| **Language** | TypeScript strict | Shared language across app and bot |
+| **Database** | PostgreSQL 16 | Simple and proven for self-hosted deployments |
+| **ORM** | Drizzle ORM | Lightweight and typed |
+| **Styling** | Token-based editorial UI with built-in theme palettes | Supports a distinctive but maintainable UI |
+| **Bot runtime** | TypeScript / Node.js | Aligned with the web stack |
 | **Metadata fetch** | HTTP fetch + HTML parsing | Cheap default path before optional enrichment |
-| **AI provider layer** | Provider abstraction over buyer-owned keys | Removes hard dependency on one vendor |
-| **Deployment** | Vercel-friendly web path + separate bot runtime + Docker Compose | Fits technical buyers with different preferences |
-
----
-
-## Current Repo Structure
-
-```
-curator-board/
-├── app/
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── admin/
-│   └── api/
-│       ├── resources/
-│       └── categories/
-├── components/
-│   └── ResourceList.tsx
-├── lib/
-│   ├── db.ts
-│   ├── schema.ts
-│   └── board-api-auth.ts
-├── db/
-│   ├── migrate.ts
-│   ├── seed.ts
-│   └── migrations/
-├── agent/                      # TypeScript Telegram bot runtime
-├── docs/
-│   ├── PRD.md
-│   ├── PLANNING.md
-│   ├── TASKS.md
-│   ├── RUNBOOK.md
-│   └── adr/
-├── docker-compose.yml
-├── docker-compose.prod.yml
-└── Dockerfile
-```
+| **AI provider layer** | Provider abstraction over operator-owned keys | Avoids hard dependency on one vendor |
+| **Deployment** | Docker Compose plus standalone app/bot paths | Covers the common self-hosted setup modes |
 
 ---
 
 ## Key Architectural Decisions
 
-### Why self-hosted source-code product first?
-It matches the current architecture and dramatically reduces the complexity compared with building a multi-tenant SaaS. Buyers manage their own stack, which makes one-time payment commercially viable.
+### Why open source?
+The repo is easier to maintain and collaborate on when public-facing docs, workflows, and structure reflect the actual open-source intent rather than an internal sales process.
 
-### Why technical buyers first?
-Non-technical self-hosted buyers are not realistic for a first version. Technical buyers can tolerate deployment steps, env vars, and separate runtimes, provided the docs are clear.
+### Why self-hosted first?
+The current architecture already fits self-hosting cleanly and avoids the complexity of a hosted multi-tenant product.
 
 ### Why separate admin auth from bot auth?
-The current browser-side `BOARD_API_SECRET` flow is acceptable for a prototype but weak for a product. A single admin password with session login is much simpler for humans. `BOARD_API_SECRET` remains appropriate for machine-to-machine writes.
+`ADMIN_PASSWORD` works well for humans. `BOARD_API_SECRET` remains appropriate for machine-to-machine writes. Keeping them separate reduces confusion and limits secret exposure.
 
-### Why Telegram only in v1?
-Telegram is the simplest ingestion channel for the current product shape. WhatsApp introduces business onboarding and more integration complexity than is justified for the first sellable version.
-
-### Why rewrite the bot to TypeScript/Node.js?
-The current Python bot works, but a mixed runtime makes the product harder to sell and support. A TypeScript/Node bot gives one primary language stack, easier shared logic, and a better fit with a Vercel-oriented packaging story.
+### Why Telegram only in the current release?
+Telegram matches the current ingestion shape and keeps the product narrow enough to maintain well.
 
 ### Why provider-agnostic AI categorization?
-The current Anthropic-only setup is too narrow for a product. Buyers should be able to bring their own AI keys. The product should work with no AI key at all by falling back to `other`.
+The project should not be tied to one AI vendor. Operators should be able to choose their provider or run without one.
 
 ### Why keep metadata enrichment optional?
-Plain metadata extraction keeps setup simple and cost-free. Optional enrichment improves quality for social/video links without making external services mandatory.
+Default metadata extraction keeps setup simple and cost-free. Optional enrichment improves quality without becoming a hard dependency.
 
-### Why keep Docker even with a Vercel-friendly path?
-Some technical buyers will prefer a single full-stack self-hosted deployment. Docker Compose remains the clearest path for that audience.
-
-### Why include themes in v1?
-This buyer segment cares about taste, customization, and terminal-adjacent aesthetics. A built-in multi-theme system makes the product feel intentional and "ownable" without requiring buyers to fork CSS on day one.
+### Why keep Docker Compose?
+It remains the clearest path for a single-server deployment with the board, bot, and database together.
 
 ---
 
-## Phase Breakdown
+## Current Planning Phases
 
-### Phase 1 — Cleanup and Documentation
-**Goal:** Make the repo look like a product instead of a prototype.
-
-Included:
-- remove prototype-only code
-- remove dead demo paths
-- simplify repeated auth helper logic
-- align docs with the actual product direction
-- introduce a token-based styling foundation
-- add a keyboard-friendly built-in theme picker
-- ship a small curated set of dark and light themes
-
-### Phase 2 — Admin and Auth Productization
-**Goal:** Replace prototype admin auth with a real product-ready admin flow.
+### Phase 1 — Open-source cleanup
+**Goal:** Make the repository public-ready and remove commercial/internal-only artifacts.
 
 Included:
-- `ADMIN_PASSWORD`
-- login route and session cookie
-- admin route protection
-- resource editing through authenticated admin
-- category create/edit through authenticated admin
+- rewrite repo docs for open-source positioning
+- remove delivery and paid-workflow docs
+- remove repo-private deployment automation
+- add basic contribution guidance
 
-### Phase 3 — Ingestion Platform
-**Goal:** Make ingestion reliable and configurable for buyers.
+### Phase 2 — Ingestion hardening
+**Goal:** Keep ingestion reliable with or without optional providers.
 
 Included:
 - no-provider fallback to `other`
 - provider abstraction for AI categorization
 - optional rich metadata enrichment path
 
-### Phase 4 — Bot Rewrite
-**Goal:** Completed.
+### Phase 3 — UX and operability
+**Goal:** Improve the board experience and deployment ergonomics without widening scope.
 
 Included:
-- TypeScript/Node Telegram bot
-- integration with current write APIs
-- migration away from the legacy Python bot
-
-### Phase 5 — Packaging and Delivery
-**Goal:** Make the product deployable and sellable.
-
-Included:
-- Vercel-friendly web deployment guide
-- separate bot deployment guide
-- verified Docker full-stack path
-- manual delivery checklist and package definition
+- theme system refinement
+- docs quality improvements
+- deployment verification improvements
 
 ---
 
@@ -203,30 +141,7 @@ Included:
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Admin auth rewrite breaks current admin flow | Medium | Medium | Land login/session slice first and verify manually |
-| AI provider abstraction grows too broad too early | Medium | Medium | Start with a narrow interface and only implement required providers |
-| Vercel story is oversold while bot still needs a second runtime | High | Medium | Document it honestly as web on Vercel plus separate bot deploy |
-| Product docs drift from code | Medium | Medium | Keep PRD, PLANNING, TASKS, and RUNBOOK updated together |
-| Theme work expands into open-ended visual polish | Medium | Medium | Keep v1 scope to token refactor, persistent picker, and a curated starter theme set |
-
----
-
-## Dedicated Repo Decision
-
-Recommended direction:
-
-- Keep a **dedicated product repository** for the sellable codebase
-- Keep your own deployed instance, private config, branding, and experimental changes out of that core product repo where possible
-
-Practical interpretation for this project:
-
-- This repo can become the product repo if you remove personal/instance-specific drift
-- Your own production deployment details can live in private env/config or a separate thin deploy repo
-
-Why:
-- product docs, packaging, and licensing become cleaner
-- buyer-facing code stays focused
-- your own experiments do not automatically become product commitments
-- customer support becomes easier because there is one canonical product codebase
-
-If you are preparing to sell this soon, separating the product from your personal instance is the right move.
+| Docs drift from code | Medium | Medium | Keep README, PRD, planning, and runbook aligned |
+| AI provider abstraction grows too broad too early | Medium | Medium | Keep the interface narrow and support only needed providers |
+| Optional enrichment becomes a hard dependency accidentally | Medium | High | Keep fallback behavior covered and documented |
+| Public repo exposes internal-only assumptions | Medium | Medium | Remove sales, delivery, and private deployment material |

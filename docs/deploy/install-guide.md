@@ -1,55 +1,29 @@
 # Install Guide
 
-*Curator Board — self-hosted deployment guide for buyers.*
+*Curator Board setup guide.*
 
-> **Prerequisites:** a Linux VPS with a domain pointed at it and SSH access.
+> **Prerequisites:** a Linux server or local machine with Docker, plus SSH access if deploying remotely.
 
 ---
 
-## Step 1 — Push the code to a private GitHub repo
-
-Unzip the archive and initialise a git repository:
+## Step 1 — Clone the repository
 
 ```bash
-unzip curator-board-v1.0.0.zip -d curator-board
+git clone <your-fork-or-clone-url> curator-board
 cd curator-board
-git init
-git add .
-git commit -m "init"
 ```
 
-Create a **private** repo on GitHub (no README, no .gitignore), then push:
-
-```bash
-git remote add origin git@github.com:<your-username>/curator-board.git
-git branch -M main
-git push -u origin main
-```
+If you plan to contribute changes upstream, fork the repository first and clone your fork.
 
 ---
 
-## Step 2 — Install Docker on your server
-
-SSH into your server, then run:
+## Step 2 — Configure the environment
 
 ```bash
-curl -fsSL https://get.docker.com | sh
-```
-
----
-
-## Step 3 — Clone and configure
-
-On the server, clone your repo and set up the environment file:
-
-```bash
-git clone git@github.com:<your-username>/curator-board.git
-cd curator-board
 cp .env.example .env
-nano .env
 ```
 
-Fill in every value marked **required** in the file. The minimum set:
+Open `.env` and fill in every required value. Minimum required values:
 
 | Variable | Notes |
 |---|---|
@@ -62,42 +36,59 @@ Fill in every value marked **required** in the file. The minimum set:
 | `TELEGRAM_BOT_TOKEN` | From [@BotFather](https://t.me/BotFather) |
 | `TELEGRAM_OWNER_ID` | From [@userinfobot](https://t.me/userinfobot) |
 
+Optional values:
+
+- `ADMIN_SESSION_SECRET`
+- `AI_PROVIDER`
+- `AI_MODEL`
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
+- `SUPADATA_API_KEY`
+
 ---
 
-## Step 4 — Start the stack
+## Step 3 — Start the full stack
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-First run takes 3–5 minutes. Once complete:
+Once complete:
 
 ```bash
 docker compose -f docker-compose.prod.yml ps
 ```
 
-All three services — `postgres`, `board`, `agent` — should show `Up`.
+All three services — `postgres`, `board`, and `agent` — should show as running.
 
 ---
 
-## Step 5 — Verify
+## Step 4 — Verify
 
 ```bash
-# Board API
-curl https://your-domain.com/api/categories
-
-# Admin panel
-# Open https://your-domain.com/admin — log in with ADMIN_PASSWORD
-
-# Telegram bot
-# Send any URL to your bot on Telegram
-# Expected: ⏳ Fetching… then ✅ Added to <category>
+curl http://localhost:3000/api/categories
 ```
+
+Then:
+
+1. Open `http://localhost:3000/admin`
+2. Log in with `ADMIN_PASSWORD`
+3. Send any URL to your Telegram bot
+
+Expected bot behavior: `⏳ Fetching…` followed by a success or error message.
+
+---
+
+## Step 5 — Optional production setup
+
+For a public deployment, put a reverse proxy in front of the board service and serve HTTPS. See [deploy-docker.md](./deploy-docker.md) for details.
 
 ---
 
 ## Need help?
 
-Contact: aimabled@gmail.com
+Open an issue in the repository with:
 
-Include your server OS, Docker version, and the relevant log output.
+- your OS and Docker version
+- the relevant command output
+- the board or agent logs if applicable

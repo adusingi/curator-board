@@ -1,101 +1,67 @@
-# TASKS.md — Curator Board Self-Hosted Product
+# TASKS.md — Curator Board
 *Active development tracker*
-*Last updated: 2026-06-04*
-*Current sprint: self-hosted productization*
+*Last updated: 2026-06-05*
+*Current sprint: open-source cleanup and ingestion hardening*
 
 ---
 
-## 🧹 Cleanup and Documentation — 2026-06-03
-**Branch:** `codex/to-prd-skill-and-doc-cleanup`
+## 🌍 Open-Source Cleanup — 2026-06-05
 
 ### Completed
-- [x] Remove throwaway UI prototype routes and components
-- [x] Remove demo seed script and package script
-- [x] Extract shared board API key helper for current machine-auth routes
-- [x] Refresh `docs/PRD.md` to the self-hosted product direction
-- [x] Refresh `docs/PLANNING.md` to the self-hosted product direction
-- [x] Refresh `docs/TASKS.md` to the self-hosted product direction
-- [x] Create `docs/SELF_HOSTED_V1_PRD.md` as discussion capture
-- [x] Create `docs/SELF_HOSTED_V1_ISSUES.md` as issue-ready breakdown
+- [x] Reposition the repo docs from commercial product language to open-source project language
+- [x] Remove commercial delivery and release-packaging documents
+- [x] Remove internal handoff and release-finalization notes that should not live in the public repo
+- [x] Remove the repo-private deploy workflow
+- [x] Add lightweight contributor guidance
+- [x] Add maintainer support/donation mention in the README
+- [x] Remove unused default static assets
+- [x] Restyle the public board to a simpler editorial layout while keeping built-in themes
 
 ### Follow-up
-- [ ] Decide whether `SELF_HOSTED_V1_PRD.md` and `SELF_HOSTED_V1_ISSUES.md` should remain as working notes or be merged fully into the canonical docs set
-- [x] Refresh `README.md` so it no longer describes the app as a personal one-owner tool
-- [x] Refresh `docs/RUNBOOK.md` so it no longer describes the product as a personal deployment and so it reflects the v1 auth direction
+- [ ] Add a real Buy Me a Coffee or sponsorship link once the maintainer chooses the public support URL
+- [ ] Decide whether to add a public issue template and discussion guidelines
 
 ---
 
-## 🔐 Phase 1 — Admin Auth Productization
+## 🔐 Ingestion and Auth
 
-### Public board design
-- [x] **RES-UX-1** Replace the current hardcoded public board styling with semantic theme tokens
-- [x] **RES-UX-2** Add a keyboard-friendly theme switcher overlay with persistent browser selection
-- [x] **RES-UX-3** Ship an initial curated set of dark and light themes for v1
+- [x] Admin login uses `ADMIN_PASSWORD`
+- [x] Admin pages and admin mutations are protected by session auth
+- [x] Browser-side use of `BOARD_API_SECRET` for admin flows is removed
+- [x] Category create/edit works behind admin session auth
+- [x] Ingestion works with no AI provider configured
+- [x] No-provider fallback assigns category `other`
+- [x] Provider-agnostic categorization interface exists
 
-### Auth foundation
-- [x] **RES-PROD-1** Add `ADMIN_PASSWORD` configuration
-- [x] **RES-PROD-2** Add admin login flow with session cookie
-- [x] **RES-PROD-3** Protect admin pages and admin mutations with session auth
-- [x] **RES-PROD-4** Remove browser-side use of `BOARD_API_SECRET` from admin
-
-### Admin capabilities
-- [x] **RES-PROD-5** Keep resource edit/delete working behind admin session auth
-- [x] **RES-PROD-6** Add category create UI and persistence
-- [x] **RES-PROD-7** Add category edit UI and persistence
+### Remaining
+- [ ] Keep default metadata extraction working without enrichment keys
+- [ ] Preserve optional rich social/video enrichment path
+- [ ] Ensure enrichment failure never blocks ingestion
 
 ---
 
-## 🧠 Phase 2 — Ingestion Platform
+## 🤖 Runtime
 
-### No-key fallback
-- [x] **RES-PROD-8** Allow ingestion with no AI provider configured
-- [x] **RES-PROD-9** Assign `other` when no provider is available
-
-### Provider abstraction
-- [x] **RES-PROD-10** Introduce provider-agnostic categorization interface
-- [x] **RES-PROD-11** Add config-driven provider selection
-- [x] **RES-PROD-12** Preserve current successful categorization path during the transition
-
-### Optional enrichment
-- [ ] **RES-PROD-13** Keep default metadata extraction working without enrichment keys
-- [ ] **RES-PROD-14** Preserve optional rich social/video enrichment path
-- [ ] **RES-PROD-15** Ensure enrichment failure never blocks ingestion
+- [x] TypeScript/Node Telegram bot is the primary ingestion runtime
+- [x] Telegram link-capture workflow remains behaviorally equivalent
+- [x] Bot config and deployment align with the current Node-first stack
 
 ---
 
-## 🤖 Phase 3 — Telegram Bot Rewrite
+## 📦 Deployment and Docs
 
-- [x] **RES-PROD-16** Replace the Python Telegram bot with a TypeScript/Node.js bot
-- [x] **RES-PROD-17** Keep current Telegram link-capture workflow behaviorally equivalent
-- [x] **RES-PROD-18** Align bot config and deployment with the new Node-first product story
-- [x] **RES-PROD-19** Retire the Python bot from the main product path
+- [x] Docker full-stack deployment path is documented
+- [x] Separate bot deployment guide exists
+- [x] Env examples distinguish required vs optional secrets
 
----
-
-## 📦 Phase 4 — Packaging and Delivery
-
-### Documentation and deployment
-- [x] **RES-PROD-20** ~~Write Vercel-friendly web deployment guide~~ → removed; single-server Docker deployment is the canonical path
-- [x] **RES-PROD-21** Write separate bot deployment guide
-- [x] **RES-PROD-22** Verify and document the Docker full-stack deployment path
-- [x] **RES-PROD-23** Update env examples to distinguish required vs optional secrets
-
-### Commercial packaging
-- [x] **RES-PROD-24** Define the one-time-purchase delivery package
-- [x] **RES-PROD-25** Create manual delivery checklist
-- [x] **RES-PROD-26** Prepare buyer-facing install materials
-
-### Release readiness
-- [x] **RES-PROD-27** Decide the canonical v1 product name and remove legacy naming drift across docs and UI
-- [x] **RES-PROD-28** Choose and add the source-code license for the product repo
-- [x] **RES-PROD-29** Define buyer-facing support and contact text for delivery materials
-- [x] **RES-PROD-30** Collect the real secrets and deployment target needed for end-to-end release verification — see docs/deploy/release-verification.md; live smoke-test pending owner credentials and deployment target
+### Remaining
+- [ ] Refresh deployment docs again after the next live verification pass
+- [ ] Add contributor-oriented verification notes for common local checks
 
 ---
 
-## 🌱 Later Expansion
+## 🌱 Later
 
-- [ ] **RES-LATER-1** WhatsApp ingestion evaluation
-- [ ] **RES-LATER-2** Hosted non-technical offer evaluation
-- [ ] **RES-LATER-3** Multi-user admin accounts
-- [ ] **RES-LATER-4** Automated post-payment delivery
+- [ ] WhatsApp ingestion evaluation
+- [ ] Multi-user admin accounts
+- [ ] Hosted version evaluation

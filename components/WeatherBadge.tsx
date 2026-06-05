@@ -274,23 +274,44 @@ export default function WeatherBadge({ defaultLat, defaultLon }: Props) {
   }
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function refresh(loc?: SavedLocation | null) {
+      const lat = loc?.lat ?? (defaultLat ? parseFloat(defaultLat) : undefined);
+      const lon = loc?.lon ?? (defaultLon ? parseFloat(defaultLon) : undefined);
+      const nextWeather = await fetchWeather(lat, lon);
+      if (!cancelled) {
+        setWeather(nextWeather);
+      }
+    }
+
     if (hasEnvDefault) {
-      load();
-      const poll = setInterval(() => load(), POLL_MS);
-      return () => clearInterval(poll);
+      const initialLoad = setTimeout(() => {
+        void refresh();
+      }, 0);
+      const poll = setInterval(() => {
+        void refresh();
+      }, POLL_MS);
+      return () => {
+        cancelled = true;
+        clearTimeout(initialLoad);
+        clearInterval(poll);
+      };
     }
 
     const saved = readSavedLocation();
     locationRef.current = saved;
-
-    if (saved) {
-      load(saved);
-    } else {
-      load(null);
-    }
-
-    const poll = setInterval(() => load(locationRef.current), POLL_MS);
-    return () => clearInterval(poll);
+    const initialLoad = setTimeout(() => {
+      void refresh(saved);
+    }, 0);
+    const poll = setInterval(() => {
+      void refresh(locationRef.current);
+    }, POLL_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(initialLoad);
+      clearInterval(poll);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

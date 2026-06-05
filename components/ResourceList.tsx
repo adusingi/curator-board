@@ -12,14 +12,6 @@ interface Props {
   categories: Category[];
 }
 
-function getDomain(url: string) {
-  try {
-    return new URL(url).hostname.replace("www.", "");
-  } catch {
-    return url;
-  }
-}
-
 function formatDate(d: Date | string) {
   return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 }
@@ -74,24 +66,24 @@ export default function ResourceList({ items, categories }: Props) {
           <div className="link-list">
             {filtered.map((r) => (
               <article key={r.id} className="link-card">
-                <span className="link-arrow">→</span>
-
                 <div className="link-content">
-                  <a
-                    href={r.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-title"
-                  >
-                    {r.title}
-                  </a>
-                  <div className="link-meta">
-                    <span className="link-category">{r.category.name}</span>
-                    <span>{formatDate(r.createdAt)}</span>
-                    <span>·</span>
-                    <button onClick={() => share(r.url, r.title)} className="share-button">
-                      share
-                    </button>
+                  <div className="link-row">
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-title"
+                    >
+                      {r.title}
+                    </a>
+                    <div className="link-meta">
+                      <span className="link-category">{r.category.name}</span>
+                      <span>{formatDate(r.createdAt)}</span>
+                      <span>·</span>
+                      <button onClick={() => share(r.url, r.title)} className="share-button">
+                        share
+                      </button>
+                    </div>
                   </div>
                 </div>
               </article>
