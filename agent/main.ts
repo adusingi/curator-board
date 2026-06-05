@@ -8,9 +8,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..");
 
 loadDotenv({ path: resolve(repoRoot, ".env.local") });
+loadDotenv({ path: resolve(repoRoot, ".env"), override: true });
 loadDotenv({ path: "/app/.env", override: true });
 loadDotenv({ path: resolve(here, ".env"), override: true });
-loadDotenv({ path: resolve(repoRoot, ".env"), override: true });
 loadDotenv();
 
 async function waitForBoard(): Promise<void> {
