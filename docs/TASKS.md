@@ -1,7 +1,7 @@
 # TASKS.md — Curator Board
 *Active development tracker*
 *Last updated: 2026-06-05*
-*Current sprint: open-source cleanup and ingestion hardening*
+*Current sprint: UI polish and operational stability*
 
 ---
 
@@ -18,7 +18,7 @@
 - [x] Restyle the public board to a simpler editorial layout while keeping built-in themes
 
 ### Follow-up
-- [ ] Add a real Buy Me a Coffee or sponsorship link once the maintainer chooses the public support URL
+- [x] Add Buy Me a Coffee link — https://www.buymeacoffee.com/adusingi
 - [ ] Decide whether to add a public issue template and discussion guidelines
 
 ---
@@ -57,6 +57,22 @@
 ### Remaining
 - [ ] Refresh deployment docs again after the next live verification pass
 - [ ] Add contributor-oriented verification notes for common local checks
+
+---
+
+---
+
+## 🛠️ Session — 2026-06-05
+
+### Completed
+- [x] Fix dotenv load order in `agent/main.ts` so `agent/.env` wins over root `.env` (fixed 401 Unauthorized from bot)
+- [x] Fix Telegram bot URL regex to accept bare domains (e.g. `projecteuler.net`) — auto-prepends `https://`
+- [x] Remove board-shell background box and structural borders for seamless page blending
+- [x] Add GitHub and Buy Me a Coffee footer links inside board-shell footer bar
+- [x] Unify footer: GitHub/BMC links (left) + theme switcher (right) in one row
+- [x] Mobile: hamburger menu for category filters, hide link-meta at ≤640px
+- [x] Fix Docker build: add `public/.gitkeep` so empty public/ dir is tracked by git
+- [x] Update GitHub repo About section: description + 7 topics
 
 ---
 
