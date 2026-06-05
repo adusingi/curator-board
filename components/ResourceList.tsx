@@ -24,9 +24,12 @@ async function share(url: string, title: string) {
   }
 }
 
+const MAX_VISIBLE_CATEGORIES = 5;
+
 export default function ResourceList({ items, categories }: Props) {
   const [active, setActive] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [moreExpanded, setMoreExpanded] = useState(false);
 
   const counts: Record<string, number> = {};
   items.forEach((r) => {
@@ -36,6 +39,12 @@ export default function ResourceList({ items, categories }: Props) {
   const populated = categories.filter((c) => counts[c.slug] > 0);
   const filtered = active ? items.filter((r) => r.category.slug === active) : items;
   const activeLabel = active ? (categories.find((c) => c.slug === active)?.name ?? "Filters") : "All links";
+
+  const hasMore = populated.length > MAX_VISIBLE_CATEGORIES;
+  const visibleCategories = hasMore && !moreExpanded
+    ? populated.slice(0, MAX_VISIBLE_CATEGORIES - 1)
+    : populated;
+  const hiddenCount = populated.length - (MAX_VISIBLE_CATEGORIES - 1);
 
   function selectCategory(slug: string | null) {
     setActive(slug);
@@ -73,7 +82,7 @@ export default function ResourceList({ items, categories }: Props) {
             <span className="filter-count">{items.length}</span>
           </button>
 
-          {populated.map((c) => (
+          {visibleCategories.map((c) => (
             <button
               key={c.slug}
               className="filter-button"
@@ -84,6 +93,15 @@ export default function ResourceList({ items, categories }: Props) {
               <span className="filter-count">{counts[c.slug]}</span>
             </button>
           ))}
+
+          {hasMore && !moreExpanded && (
+            <button
+              className="filter-button filter-button--more"
+              onClick={() => setMoreExpanded(true)}
+            >
+              <span>+{hiddenCount} more</span>
+            </button>
+          )}
         </div>
       </aside>
 
