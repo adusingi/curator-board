@@ -577,6 +577,36 @@ textarea {
   color: var(--accent-strong);
 }
 
+.board-footer {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 20px 8px 8px;
+  flex-wrap: wrap;
+}
+
+.board-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-soft);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 140ms ease;
+}
+
+.board-footer-link:hover {
+  color: var(--foreground);
+}
+
+.board-footer-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 .theme-trigger {
   position: fixed;
   right: 18px;
