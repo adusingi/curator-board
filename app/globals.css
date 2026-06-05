@@ -579,10 +579,17 @@ textarea {
 
 .board-footer {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 8px 8px;
+  margin-top: auto;
+}
+
+.board-footer-links {
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 20px 8px 8px;
+  gap: 6px;
 }
 
 .board-footer-link {
@@ -608,10 +615,6 @@ textarea {
 }
 
 .theme-trigger {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 30;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -621,6 +624,7 @@ textarea {
   color: var(--foreground);
   cursor: pointer;
   backdrop-filter: blur(10px);
+  flex-shrink: 0;
 }
 
 .theme-trigger-dot {
@@ -785,11 +789,6 @@ textarea {
 
   .link-row {
     gap: 8px;
-  }
-
-  .theme-trigger {
-    right: 14px;
-    bottom: 14px;
   }
 
 }
