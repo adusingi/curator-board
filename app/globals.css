@@ -515,8 +515,18 @@ textarea {
 }
 
 .link-card {
-  padding: 0 0 6px;
+  padding: 0 0 10px;
   min-width: 0;
+}
+
+.link-card:not(:last-child) .link-content::after {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  margin-top: 10px;
+  background: var(--line);
+  vertical-align: top;
 }
 
 .link-content {
@@ -596,6 +606,13 @@ textarea {
   gap: 6px;
 }
 
+@media (max-width: 639px) {
+  .board-footer-links {
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
 .board-footer-link {
   display: inline-flex;
   align-items: center;
@@ -613,8 +630,8 @@ textarea {
 }
 
 .board-footer-icon {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
