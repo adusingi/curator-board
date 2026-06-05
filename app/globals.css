@@ -446,6 +446,10 @@ textarea {
   padding: 0 8px 8px;
 }
 
+.sidebar-toggle {
+  display: none;
+}
+
 .board-sidebar {
   padding: 0 24px 0 0;
 }
@@ -746,12 +750,42 @@ textarea {
 
   .board-layout {
     grid-template-columns: 1fr;
-    gap: 22px;
+    gap: 0;
     padding: 0 4px 4px;
   }
 
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px 7px 0;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: color 140ms ease;
+  }
+
+  .sidebar-toggle:hover {
+    color: var(--foreground);
+  }
+
+  .sidebar-toggle-bars {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
   .board-sidebar {
-    padding: 0 0 18px;
+    display: none;
+    padding: 0 0 16px;
+  }
+
+  .board-sidebar[data-open="true"] {
+    display: block;
   }
 
   .board-main {
@@ -759,12 +793,9 @@ textarea {
   }
 
   .filter-list {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 6px 12px;
-  }
-
-  .filter-button {
-    padding-left: 8px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
 
   .link-list {
@@ -785,6 +816,10 @@ textarea {
 
   .board-header {
     padding: 6px 4px 18px;
+  }
+
+  .link-meta {
+    display: none;
   }
 
   .link-row {

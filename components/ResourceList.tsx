@@ -26,6 +26,7 @@ async function share(url: string, title: string) {
 
 export default function ResourceList({ items, categories }: Props) {
   const [active, setActive] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const counts: Record<string, number> = {};
   items.forEach((r) => {
@@ -34,13 +35,40 @@ export default function ResourceList({ items, categories }: Props) {
 
   const populated = categories.filter((c) => counts[c.slug] > 0);
   const filtered = active ? items.filter((r) => r.category.slug === active) : items;
+  const activeLabel = active ? (categories.find((c) => c.slug === active)?.name ?? "Filters") : "All links";
+
+  function selectCategory(slug: string | null) {
+    setActive(slug);
+    setSidebarOpen(false);
+  }
 
   return (
     <div className="board-layout">
-      <aside className="board-sidebar">
+      <button
+        className="sidebar-toggle"
+        onClick={() => setSidebarOpen((o) => !o)}
+        aria-expanded={sidebarOpen}
+      >
+        <span className="sidebar-toggle-bars" aria-hidden="true">
+          {sidebarOpen ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+              <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect y="1" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <rect y="6.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <rect y="11.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+            </svg>
+          )}
+        </span>
+        <span>{activeLabel}</span>
+      </button>
+
+      <aside className="board-sidebar" data-open={sidebarOpen}>
         <p className="board-sidebar-label">Filters</p>
         <div className="filter-list">
-          <button className="filter-button" data-active={active === null} onClick={() => setActive(null)}>
+          <button className="filter-button" data-active={active === null} onClick={() => selectCategory(null)}>
             <span>All links</span>
             <span className="filter-count">{items.length}</span>
           </button>
@@ -50,7 +78,7 @@ export default function ResourceList({ items, categories }: Props) {
               key={c.slug}
               className="filter-button"
               data-active={active === c.slug}
-              onClick={() => setActive(c.slug === active ? null : c.slug)}
+              onClick={() => selectCategory(c.slug === active ? null : c.slug)}
             >
               <span>{c.name}</span>
               <span className="filter-count">{counts[c.slug]}</span>
