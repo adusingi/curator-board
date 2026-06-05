@@ -10,7 +10,7 @@ import {
 import { pickCategory, scrapeOg } from "./parser";
 
 const OWNER_ID = Number(process.env.TELEGRAM_OWNER_ID ?? "0");
-const URL_RE = /https?:\/\/\S+/;
+const URL_RE = /(?:https?:\/\/\S+|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\S*)/;
 
 function isOwner(ctx: Context): boolean {
   return OWNER_ID === 0 || ctx.from?.id === OWNER_ID;
@@ -36,7 +36,8 @@ async function handleUrl(ctx: Context): Promise<void> {
     return;
   }
 
-  const url = match[0].replace(/[.,)]+$/, "");
+  const raw = match[0].replace(/[.,)]+$/, "");
+  const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   if (!isOwner(ctx)) {
     await ctx.reply("Not authorised.");
     return;
