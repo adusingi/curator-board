@@ -1,4 +1,4 @@
-export const DEFAULT_THEME_ID = "vesper";
+export const DEFAULT_THEME_ID = "mobayilo";
 export const THEME_STORAGE_KEY = "curator-board-theme";
 
 type ThemeDefinition = {
