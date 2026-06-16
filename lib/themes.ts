@@ -1,4 +1,4 @@
-export const DEFAULT_THEME_ID = "vesper";
+export const DEFAULT_THEME_ID = "mobayilo";
 export const THEME_STORAGE_KEY = "curator-board-theme";
 
 type ThemeDefinition = {
@@ -9,6 +9,29 @@ type ThemeDefinition = {
 };
 
 export const themes: ThemeDefinition[] = [
+  {
+    id: "mobayilo",
+    group: "dark",
+    label: "mobayilo",
+    variables: {
+      "background": "#0F172A",
+      "background-rgb": "15 23 42",
+      "panel": "#1E293B",
+      "panel-soft": "#162032",
+      "line": "#253346",
+      "line-strong": "#22C55E",
+      "foreground": "#F1F5F9",
+      "muted": "#94A3B8",
+      "muted-soft": "#64748B",
+      "accent": "#22C55E",
+      "accent-strong": "#4ADE80",
+      "accent-wash": "rgba(34, 197, 94, 0.14)",
+      "chip-background": "#1E293B",
+      "chip-foreground": "#4ADE80",
+      "card-shadow": "0 18px 50px rgba(0, 0, 0, 0.40)",
+      "page-gradient": "radial-gradient(circle at top left, rgba(34, 197, 94, 0.07), transparent 40%), linear-gradient(180deg, #111827 0%, #0F172A 100%)",
+    },
+  },
   {
     id: "vesper",
     group: "dark",
