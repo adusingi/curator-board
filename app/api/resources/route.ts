@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { resources, categories } from "@/lib/schema";
 import { hasBoardApiKey } from "@/lib/board-api-auth";
+import { buildOkfConcept } from "@/lib/okf/concept";
 import { eq, desc, ilike, or } from "drizzle-orm";
 import { z } from "zod";
 
@@ -31,6 +32,9 @@ export async function GET(req: NextRequest) {
       url: resources.url,
       title: resources.title,
       description: resources.description,
+      type: resources.type,
+      tags: resources.tags,
+      slug: resources.slug,
       createdAt: resources.createdAt,
       category: { id: categories.id, name: categories.name, slug: categories.slug },
     })
@@ -67,12 +71,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: `Category '${categorySlug}' not found` }, { status: 404 });
   }
 
+  // Assemble + validate the canonical OKF concept before anything enters the DB.
+  const built = buildOkfConcept({ url, title, description, categorySlug });
+  if (!built.ok) {
+    return NextResponse.json({ success: false, error: built.error.flatten() }, { status: 400 });
+  }
+  const { concept } = built;
+
   const [resource] = await db
     .insert(resources)
-    .values({ url, title, description, categoryId: category.id })
+    .values({
+      url: concept.resource,
+      title: concept.title,
+      description: concept.description,
+      categoryId: category.id,
+      type: concept.type,
+      tags: concept.tags,
+      slug: concept.slug,
+    })
     .onConflictDoUpdate({
       target: resources.url,
-      set: { title, description, categoryId: category.id },
+      set: {
+        title: concept.title,
+        description: concept.description,
+        categoryId: category.id,
+        type: concept.type,
+        tags: concept.tags,
+      },
     })
     .returning();
 

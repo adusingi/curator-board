@@ -16,6 +16,10 @@ export const resources = pgTable("resources", {
   categoryId: integer("category_id")
     .notNull()
     .references(() => categories.id),
+  // OKF v0.1 concept fields — every resource is a valid OKF concept (see lib/okf/concept.ts).
+  type: text("type").notNull().default("Link"),
+  tags: text("tags").array().notNull().default([]),
+  slug: text("slug").notNull().unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

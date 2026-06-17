@@ -76,6 +76,21 @@
 
 ---
 
+## 📚 OKF-native resources — 2026-06-17
+
+### Completed
+- [x] Resources are validated as OKF v0.1 concepts before entering the DB (`lib/okf/concept.ts`, `POST /api/resources`)
+- [x] Schema carries OKF fields (`type`, `tags`, `slug`); migration `0001` + `db:backfill` backfill existing rows
+- [x] `pnpm okf:export` projects the OKF-native DB into the `knowledge/` markdown bundle (git-ignored)
+- [x] ADR `0004-okf-native-resources.md`
+
+### Follow-up
+- [ ] `tags` are auto-derived from category for now — add multi-tagging (AI-suggested or manual) later (no schema change needed)
+- [ ] Search UI/endpoint over the OKF concepts (board + bot)
+- [ ] Decide if/how to publish the `knowledge/` bundle (e.g. CI export from the prod DB) for GitHub browsability
+
+---
+
 ## 🌱 Later
 
 - [ ] WhatsApp ingestion evaluation

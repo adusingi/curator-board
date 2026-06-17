@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# OKF bundle — generated projection of the DB (regenerate with `pnpm okf:export`)
+/knowledge/
+
 # Python
 agent/__pycache__/
 agent/.venv/

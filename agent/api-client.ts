@@ -10,6 +10,9 @@ export type Resource = {
   url: string;
   title: string;
   description: string | null;
+  type?: string;
+  tags?: string[];
+  slug?: string;
   category: Category;
 };
 
