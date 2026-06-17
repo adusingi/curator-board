@@ -15,6 +15,9 @@ async function getData() {
         url: resources.url,
         title: resources.title,
         description: resources.description,
+        type: resources.type,
+        tags: resources.tags,
+        slug: resources.slug,
         createdAt: resources.createdAt,
         category: {
           id: categories.id,

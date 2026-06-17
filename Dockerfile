@@ -23,4 +23,4 @@ COPY --from=builder /app/lib ./lib
 COPY --from=deps /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
 COPY --from=deps /app/node_modules/postgres ./node_modules/postgres
 EXPOSE 3000
-CMD ["sh", "-c", "tsx db/migrate.ts && tsx db/seed.ts; node server.js"]
+CMD ["sh", "-c", "tsx db/migrate.ts && tsx db/backfill-okf.ts && tsx db/seed.ts; node server.js"]

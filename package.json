@@ -10,9 +10,10 @@
     "agent:start": "tsx agent/main.ts",
     "db:migrate": "tsx --env-file .env.local db/migrate.ts",
     "db:seed": "tsx --env-file .env.local db/seed.ts",
+    "db:backfill": "tsx --env-file .env.local db/backfill-okf.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
-    "okf:export": "tsx scripts/okf/export-okf.ts"
+    "okf:export": "tsx --env-file .env.local scripts/okf/export-okf.ts"
   },
   "dependencies": {
     "cheerio": "^1.2.0",

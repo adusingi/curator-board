@@ -3,6 +3,7 @@ import { hasBoardApiKey } from "@/lib/board-api-auth";
 import { hasAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { resources, categories } from "@/lib/schema";
+import { OkfConceptSchema } from "@/lib/okf/concept";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -50,32 +51,67 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const { title, description, categorySlug } = parsed.data;
-  const updateData: Record<string, unknown> = {};
+  if (title === undefined && description === undefined && !categorySlug) {
+    return NextResponse.json({ success: false, error: "Nothing to update" }, { status: 400 });
+  }
 
-  if (title !== undefined) updateData.title = title;
-  if (description !== undefined) updateData.description = description;
+  // Load the current row (joined with its category) so we can re-validate the
+  // resulting OKF concept before persisting any change.
+  const [current] = await db
+    .select({
+      url: resources.url,
+      title: resources.title,
+      description: resources.description,
+      type: resources.type,
+      tags: resources.tags,
+      slug: resources.slug,
+      categoryId: resources.categoryId,
+      categorySlug: categories.slug,
+    })
+    .from(resources)
+    .innerJoin(categories, eq(resources.categoryId, categories.id))
+    .where(eq(resources.id, numId))
+    .limit(1);
 
-  if (categorySlug) {
+  if (!current) {
+    return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+  }
+
+  let categoryId = current.categoryId;
+  let nextCategorySlug = current.categorySlug;
+  let tags = current.tags;
+  if (categorySlug && categorySlug !== current.categorySlug) {
     const [cat] = await db.select().from(categories).where(eq(categories.slug, categorySlug)).limit(1);
     if (!cat) {
       return NextResponse.json({ success: false, error: `Category '${categorySlug}' not found` }, { status: 404 });
     }
-    updateData.categoryId = cat.id;
+    categoryId = cat.id;
+    nextCategorySlug = cat.slug;
+    tags = [cat.slug];
   }
 
-  if (Object.keys(updateData).length === 0) {
-    return NextResponse.json({ success: false, error: "Nothing to update" }, { status: 400 });
+  const nextTitle = title ?? current.title;
+  const nextDescription = description !== undefined ? description ?? null : current.description;
+
+  // slug and type stay fixed (stable concept id); re-validate the whole concept.
+  const validated = OkfConceptSchema.safeParse({
+    type: current.type,
+    title: nextTitle,
+    description: nextDescription,
+    resource: current.url,
+    categorySlug: nextCategorySlug,
+    tags,
+    slug: current.slug,
+  });
+  if (!validated.success) {
+    return NextResponse.json({ success: false, error: validated.error.flatten() }, { status: 400 });
   }
 
   const [updated] = await db
     .update(resources)
-    .set(updateData)
+    .set({ title: nextTitle, description: nextDescription, categoryId, tags })
     .where(eq(resources.id, numId))
     .returning();
-
-  if (!updated) {
-    return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
-  }
 
   return NextResponse.json({ success: true, data: updated });
 }

@@ -60,6 +60,7 @@ pnpm install --ignore-scripts
 
 ```bash
 pnpm db:migrate
+pnpm db:backfill
 pnpm db:seed
 ```
 
@@ -131,10 +132,26 @@ Database: curator_board
 ### Commands
 
 ```bash
-pnpm db:migrate
-pnpm db:seed
+pnpm db:migrate    # apply schema migrations
+pnpm db:backfill   # fill OKF type/tags/slug on existing rows, finalize slug NOT NULL + UNIQUE
+pnpm db:seed       # seed default categories
 pnpm db:generate
 pnpm db:studio
+```
+
+**Run order matters** on an existing (already-populated) database:
+`db:migrate` → `db:backfill` → `db:seed`. Migration `0001` adds `slug` as nullable so it is safe on
+populated tables; `db:backfill` then fills every slug and promotes the column to `NOT NULL` + `UNIQUE`.
+The production container runs all three automatically on boot (see `Dockerfile` `CMD`). Both
+`db:migrate` and `db:backfill` are idempotent.
+
+### OKF bundle
+
+Every resource is a valid OKF v0.1 concept (see `docs/adr/0004-okf-native-resources.md`). Regenerate the
+markdown projection under `knowledge/` (git-ignored, environment-specific) from the DB:
+
+```bash
+pnpm okf:export
 ```
 
 ### Connect with `psql`
@@ -202,6 +219,9 @@ pnpm agent:start
 |---|---|---|---|
 | GET | `/api/resources` | none | List resources |
 | GET | `/api/categories` | none | List categories |
+
+Each resource is returned with its full OKF concept fields (`type`, `tags`, `slug`) alongside
+`url`/`title`/`description`/`category`.
 
 Supported `GET /api/resources` filters:
 

@@ -1,94 +1,104 @@
 import { mkdir, rm, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
-import { CategoriesResponseSchema, ResourcesResponseSchema } from "./types";
-import type { Category, Resource } from "./types";
-import { linkFileName, renderCategoryIndex, renderLinkConcept, renderRootIndex } from "./render";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { desc, eq } from "drizzle-orm";
+import { resources, categories } from "../../lib/schema";
+import {
+  linkFileName,
+  renderCategoryIndex,
+  renderLinkConcept,
+  renderRootIndex,
+} from "../../lib/okf/render";
+import type { RenderCategory, RenderLink } from "../../lib/okf/render";
 
 /**
- * Export all curated links from the public board API into an OKF v0.1 bundle
- * under `knowledge/`. Re-run any time to regenerate the bundle in place.
+ * Project the OKF-native `resources` table into an OKF v0.1 bundle under
+ * `knowledge/`: one markdown concept per link, grouped by category. The DB rows
+ * already carry the OKF fields (type/tags/slug), so this is a pure projection.
  *
- * Usage: pnpm okf:export [boardUrl]
- *   boardUrl defaults to $BOARD_PUBLIC_URL or https://news.infiniwa.com
+ * Usage: pnpm okf:export
  */
 
-const BOARD_URL = (process.argv[2] ?? process.env.BOARD_PUBLIC_URL ?? "https://news.infiniwa.com").replace(/\/+$/, "");
 const OUT_DIR = path.resolve(process.cwd(), "knowledge");
+const SOURCE_LABEL = "the Curator Board database";
 
-async function fetchJson(url: string): Promise<unknown> {
-  const res = await fetch(url, { headers: { accept: "application/json" } });
-  if (!res.ok) throw new Error(`GET ${url} → ${res.status} ${res.statusText}`);
-  return res.json();
-}
+async function loadLinks(db: ReturnType<typeof drizzle>): Promise<RenderLink[]> {
+  const rows = await db
+    .select({
+      url: resources.url,
+      title: resources.title,
+      description: resources.description,
+      type: resources.type,
+      tags: resources.tags,
+      slug: resources.slug,
+      createdAt: resources.createdAt,
+      category: { name: categories.name, slug: categories.slug },
+    })
+    .from(resources)
+    .innerJoin(categories, eq(resources.categoryId, categories.id))
+    .orderBy(desc(resources.createdAt));
 
-async function loadData(): Promise<{ categories: Category[]; resources: Resource[] }> {
-  const [catRaw, resRaw] = await Promise.all([
-    fetchJson(`${BOARD_URL}/api/categories?limit=200`),
-    fetchJson(`${BOARD_URL}/api/resources?limit=200`),
-  ]);
-  return {
-    categories: CategoriesResponseSchema.parse(catRaw).data,
-    resources: ResourcesResponseSchema.parse(resRaw).data,
-  };
+  return rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
 }
 
 /** Remove previously generated category folders + root index, keep log.md. */
-async function clean(categories: Category[]): Promise<void> {
+async function clean(slugs: string[]): Promise<void> {
   await rm(path.join(OUT_DIR, "index.md"), { force: true });
-  await Promise.all(
-    categories.map((c) => rm(path.join(OUT_DIR, c.slug), { recursive: true, force: true })),
-  );
+  await Promise.all(slugs.map((slug) => rm(path.join(OUT_DIR, slug), { recursive: true, force: true })));
 }
 
-async function writeBundle(categories: Category[], resources: Resource[], generatedAt: string): Promise<void> {
-  const byCategory = new Map<string, Resource[]>();
-  for (const r of resources) {
-    const list = byCategory.get(r.category.slug) ?? [];
-    list.push(r);
-    byCategory.set(r.category.slug, list);
+async function writeBundle(links: RenderLink[], generatedAt: string): Promise<number> {
+  const byCategory = new Map<string, { category: RenderCategory; links: RenderLink[] }>();
+  for (const link of links) {
+    const entry = byCategory.get(link.category.slug) ?? { category: link.category, links: [] };
+    entry.links.push(link);
+    byCategory.set(link.category.slug, entry);
   }
 
-  const populated: { category: Category; count: number }[] = [];
-  for (const category of categories) {
-    const links = byCategory.get(category.slug);
-    if (!links || links.length === 0) continue;
-    populated.push({ category, count: links.length });
+  await clean([...byCategory.keys()]);
 
+  const populated: { category: RenderCategory; count: number }[] = [];
+  for (const { category, links: catLinks } of byCategory.values()) {
+    populated.push({ category, count: catLinks.length });
     const dir = path.join(OUT_DIR, category.slug);
     await mkdir(dir, { recursive: true });
     await Promise.all(
-      links.map((link) => writeFile(path.join(dir, linkFileName(link)), renderLinkConcept(link))),
+      catLinks.map((link) => writeFile(path.join(dir, linkFileName(link)), renderLinkConcept(link))),
     );
-    await writeFile(path.join(dir, "index.md"), renderCategoryIndex(category, links));
+    await writeFile(path.join(dir, "index.md"), renderCategoryIndex(category, catLinks));
   }
 
   await writeFile(
     path.join(OUT_DIR, "index.md"),
-    renderRootIndex(BOARD_URL, generatedAt, populated, resources.length),
+    renderRootIndex(SOURCE_LABEL, generatedAt, populated, links.length),
   );
+  return populated.length;
 }
 
 /** Append a dated entry to the bundle change log, creating it if absent. */
-async function appendLog(resources: Resource[], categoryCount: number, generatedAt: string): Promise<void> {
+async function appendLog(linkCount: number, categoryCount: number, generatedAt: string): Promise<void> {
   const logPath = path.join(OUT_DIR, "log.md");
   const existing = await readFile(logPath, "utf8").catch(() => "# Change Log\n");
-  const entry = `- ${generatedAt} — Exported ${resources.length} link${resources.length === 1 ? "" : "s"} across ${categoryCount} categor${categoryCount === 1 ? "y" : "ies"} from ${BOARD_URL}.`;
+  const entry = `- ${generatedAt} — Exported ${linkCount} link${linkCount === 1 ? "" : "s"} across ${categoryCount} categor${categoryCount === 1 ? "y" : "ies"} from ${SOURCE_LABEL}.`;
   await writeFile(logPath, `${existing.trimEnd()}\n${entry}\n`);
 }
 
 async function main(): Promise<void> {
   const generatedAt = new Date().toISOString();
-  console.log(`Exporting OKF bundle from ${BOARD_URL} → ${OUT_DIR}`);
+  const client = postgres(process.env.DATABASE_URL!, { max: 1 });
+  const db = drizzle(client);
 
-  const { categories, resources } = await loadData();
-  await mkdir(OUT_DIR, { recursive: true });
-  await clean(categories);
-  await writeBundle(categories, resources, generatedAt);
-
-  const populatedCount = new Set(resources.map((r) => r.category.slug)).size;
-  await appendLog(resources, populatedCount, generatedAt);
-
-  console.log(`Wrote ${resources.length} links across ${populatedCount} categories.`);
+  try {
+    console.log(`Exporting OKF bundle → ${OUT_DIR}`);
+    const links = await loadLinks(db);
+    await mkdir(OUT_DIR, { recursive: true });
+    const categoryCount = await writeBundle(links, generatedAt);
+    await appendLog(links.length, categoryCount, generatedAt);
+    console.log(`Wrote ${links.length} links across ${categoryCount} categories.`);
+  } finally {
+    await client.end();
+  }
 }
 
 main().catch((err: unknown) => {
